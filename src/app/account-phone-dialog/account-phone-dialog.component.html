@@ -1,0 +1,36 @@
+<h1 mat-dialog-title>{{data.title}}</h1>
+<div mat-dialog-content>
+  <div class="searchOption">
+    <mat-form-field>
+      <input type="text" matInput placeholder="Search" appearance="outline" [formControl]="searchAccountPhones">
+    </mat-form-field>
+  </div>
+  <div class="spinnerHolder" *ngIf="loading">
+    <mat-progress-spinner [color]="'primary'" [mode]="'indeterminate'" [diameter]="25">
+    </mat-progress-spinner>
+  </div>
+  <div class="headerRow" matSort (matSortChange)="sortAccountPhones($event)" [matSortDisableClear]="true">
+    <div class="headerColumn" mat-sort-header="accountPhone">Account Phone</div>
+    <div class="headerColumn" mat-sort-header="accountPhoneName">Account Phone Name</div>
+    <div class="headerColumn" mat-sort-header="unreadMessages">Unread Messages</div>
+  </div>
+  <div>
+    <div *ngIf="!filteredAccPhones.length && !loading">No data</div>
+    <div class="contactRow" *ngFor="let accountPhone of filteredAccPhones" (click)="accountPhoneSelected(accountPhone)">
+      <div class="nameClmn column edgeSpaceEle">
+        <span>{{ accountPhone.accountPhone | phone }}</span>
+      </div>
+      <div class="nameClmn column">
+        <span>{{ accountPhone.accountPhoneName }}</span>
+      </div>
+      <div class="nameClmn column">
+        <span>{{ accountPhone.unreadMessages }}</span>
+      </div>
+    </div>
+  </div>
+</div>
+<div mat-dialog-actions>
+  <span>
+    <button mat-flat-button color="accent" [mat-dialog-close]="false">Close</button>
+  </span>
+</div>

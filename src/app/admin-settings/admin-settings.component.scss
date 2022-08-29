@@ -1,0 +1,80 @@
+.row {
+  display: flex;
+  flex-direction: row;
+  margin: 16px 2px;
+}
+
+.spacedEle > * {
+  margin-left: 16px;
+  margin-right: 16px;
+}
+
+.indent {
+  margin-left: 16px;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.accountPhoneTable {
+  width: 100%;
+  border-collapse: collapse;
+  td, th {
+    border-bottom: 0.1px solid grey;
+    text-align: left;
+    padding: 8px;
+  }
+}
+
+.accountUsersTable {
+  width: 100%;
+  border-collapse: collapse;
+  td, th {
+    border-bottom: 0.1px solid grey;
+    text-align: left;
+    padding: 8px;
+  };
+}
+
+
+.edited {
+  background-color: #eac8b27d;
+}
+
+
+.header {
+  // font-weight: bold;
+  // font-size: 1.4em;
+  position: sticky;
+  top: 0;
+  background-color: white;
+  border: 1px solid grey;
+  padding: 4px;
+  text-align: center;
+  margin-bottom: 8px;
+  /* vertical-align: middle; */
+  align-items: center;
+}
+
+.usersHolder {
+  margin: 16px 2px;
+  padding: 8px;
+  border: 0.01px solid grey;
+  border-radius: 5px;
+  overflow: auto;
+}
+
+.dataRow {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(11, 1fr);
+  align-items: center;
+  text-align: center;
+}
+
+.phoneProp {
+  margin-left: 32px;
+}

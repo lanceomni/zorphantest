@@ -1,0 +1,35 @@
+.container {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  height: 100vh;
+
+  background-image: radial-gradient(at top left, transparent 67%, var(--primary) 67.1%),
+  linear-gradient(135deg, #e7f0fe 0%, #ffffff 100%);
+  background-size: 120% 100%,cover;
+  background-repeat: no-repeat;
+  margin: 0;
+}
+
+.loginForm {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+}
+
+.biggerInput {
+  width: 18rem;
+}
+
+.accentText {
+  color: var(--accent);
+}
+
+.textLink {
+  cursor: pointer;
+}
+
+.textLink:hover {
+  text-decoration: underline;
+}

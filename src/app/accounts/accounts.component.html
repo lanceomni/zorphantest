@@ -1,0 +1,36 @@
+<div class="container">
+  <div class="holder flex-column">
+    <div class="flex-row">
+      <h2>
+        <button *ngIf="(isSmall$ | async)" aria-label="Toggle sidenav" mat-icon-button (click)="toggleSideNav($event)">
+          <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
+        </button>
+        Accounts
+      </h2>
+    </div>
+    <div class="header flex-row">
+      <mat-form-field>
+        <input type="text" matInput placeholder="Search" appearance="outline" [formControl]="searchAccounts">
+      </mat-form-field>
+      <span class="spacedEle">
+        <button mat-flat-button color="accent" *ngIf="isAdmin" (click)="openAccountDialoag()">Add Account</button>
+        <!-- <button mat-flat-button color="primary" (click)="openCreateUser()">Create User</button> -->
+      </span>
+    </div>
+    <div class="body">
+      <mat-list role="list">
+        <mat-list-item *ngIf="!accounts.length">
+          No results found
+        </mat-list-item>
+        <mat-list-item role="listitem" class="account" *ngFor="let account of accounts; let i = index" (click)="openAccountDialoag(account)">
+          <!-- <span>
+            {{ i + 1 }}
+          </span> -->
+          <span>
+            {{ account.accountName }}
+          </span>
+        </mat-list-item>
+      </mat-list>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,74 @@
+<div class="container">
+  <h2>Welcome User</h2>
+  <span *ngIf="!hideResetForm">A code has been sent to your registered mobile phone number. Use code to reset your password</span>
+  <div>
+    <div class="loginForm" *ngIf="!hideLoginForm">
+      <mat-form-field appearance="outline" class="biggerInput" *ngIf="!askCode">
+        <mat-label>Email</mat-label>
+        <input type="email" matInput [(ngModel)]="user.userName" (keyup.enter)="signIn(user)">
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="biggerInput" *ngIf="!askCode">
+        <mat-label>Password</mat-label>
+        <input type="password" matInput [(ngModel)]="user.password" (keyup.enter)="signIn(user)">
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="biggerInput" *ngIf="askCode">
+        <mat-label>Code</mat-label>
+        <input type="text" matInput [(ngModel)]="user.twoFactorCode" (keyup.enter)="signIn(user)">
+        <mat-hint>Enter the code sent to your registered mobile number</mat-hint>
+      </mat-form-field>
+      <mat-checkbox [(ngModel)]="user.stayLoggedIn" color="accent">Stay signed in</mat-checkbox><br>
+      <span>
+        <button type="button" disabled="{{ !user.userName || !user.password || reqInprogress }}"
+          mat-flat-button color="primary"
+          (click)="signIn(user)"
+          class="roundedBtn">
+          Sign In
+        </button>
+      </span>
+      <br>
+      <h4>
+        <span class="accentText textLink" (click)="showForgotPass()">forgot password ?</span>
+      </h4>
+    </div>
+    <div class="loginForm" *ngIf="!hideForgotPass">
+      <mat-form-field appearance="outline" class="biggerInput">
+        <mat-label>Email</mat-label>
+        <input type="email" matInput [(ngModel)]="user.userName" (keyup.enter)="requestResetCode(user)">
+      </mat-form-field><br>
+      <span>
+        <button type="button" disabled="{{ !user.userName || reqInprogress }}"
+          mat-flat-button color="primary"
+          (click)="requestResetCode(user)"
+          class="roundedBtn">
+          Request code
+        </button>
+      </span>
+      <br>
+      <h4>
+        <span class="accentText textLink" (click)="showLoginForm()">Sign In</span>
+      </h4>
+    </div>
+    <div class="loginForm" *ngIf="!hideResetForm">
+      <mat-form-field appearance="outline" class="biggerInput">
+        <mat-label>Code</mat-label>
+        <input type="search" matInput autocomplete="cc-number" name="code-field" [(ngModel)]="user.resetCode" (keyup.enter)="resetPassword(user)">
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="biggerInput">
+        <mat-label>New Password</mat-label>
+        <input type="password" matInput [(ngModel)]="user.newPassword" (keyup.enter)="resetPassword(user)">
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="biggerInput">
+        <mat-label>Re-Type password</mat-label>
+        <input type="password" matInput [(ngModel)]="user.reNewPassword" (keyup.enter)="resetPassword(user)">
+      </mat-form-field>
+      <span>
+        <button type="button" disabled="{{ !user.resetCode || !user.newPassword || !user.reNewPassword || reqInprogress }}"
+          mat-flat-button color="primary"
+          (click)="resetPassword(user)"
+          class="roundedBtn">
+          Update Password
+        </button>
+      </span>
+    </div>
+  </div>
+</div>

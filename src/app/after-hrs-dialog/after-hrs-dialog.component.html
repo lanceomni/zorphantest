@@ -1,0 +1,28 @@
+<h1 mat-dialog-title>{{data.title}}</h1>
+<div mat-dialog-content>
+  <!-- <div class="row">
+    <span>Week</span>
+    <span class="dateControls">
+      <span>Open</span>
+      <span>Close</span>
+    </span>
+  </div> -->
+  <div class="row" *ngFor="let day of hours">
+    <span class="centralize">
+      <mat-slide-toggle [(ngModel)]="day.checked" (change)="disableDay(day)">{{ day.weekName }}</mat-slide-toggle>
+    </span>
+    <span class="dateControls" *ngIf="!day.checked">
+      <input type="text" disabled placeholder="After hours">
+    </span>
+    <span class="dateControls" *ngIf="day.checked">
+    <ngx-mat-timepicker [(ngModel)]="day.startTime.date" [enableMeridian]="true" [showSpinners]="false"></ngx-mat-timepicker>
+    <ngx-mat-timepicker [(ngModel)]="day.endTime.date" [enableMeridian]="true" [showSpinners]="false"></ngx-mat-timepicker>
+  </span>
+  </div>
+</div>
+<div mat-dialog-actions>
+  <span>
+    <button mat-flat-button color="accent" [mat-dialog-close]="false">Close</button>
+    <button mat-flat-button color="primary" (click)="save()">Save & Close</button>
+  </span>
+</div>

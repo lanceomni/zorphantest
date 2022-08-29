@@ -1,0 +1,312 @@
+<h1 mat-dialog-title>{{data.title}}</h1>
+<div mat-dialog-content>
+  <mat-stepper orientation="horizontal" #stepper color="primary" linear="true">
+    <mat-step [completed]="accountStepComplete">
+      <ng-template matStepLabel>Account Name</ng-template>
+      <form [formGroup]="accountFormGroup">
+        <mat-form-field appearance="outline">
+          <mat-label>Account Name</mat-label>
+          <input matInput formControlName="accountName" required>
+        </mat-form-field>
+      </form>
+      <div class="spacedEle">
+        <button mat-stroked-button [mat-dialog-close]="false">Close</button>
+        <button mat-flat-button color="primary" *ngIf="data.account && data.account.id" (click)="nextStep(stepper)">Next</button>
+        <button mat-flat-button color="accent" *ngIf="oldAccName !== accountFormGroup.value.accountName" (click)="saveAccount(accountFormGroup.value.accountName)">{{ (data.account && data.account.id) ? 'Update' : 'Create' }} Account</button>
+      </div>
+    </mat-step>
+    <mat-step [completed]="phoneStepComplete">
+      <ng-template matStepLabel>Account Phone</ng-template>
+      <button mat-flat-button color="accent" *ngIf="data && data.isAdmin" (click)="addNewAccountPhone()">
+        Add New Account Phone
+      </button>
+      <div class="usersHolder">
+        <h3>Account Phones</h3>
+        <h4 *ngIf="accountPhones && !accountPhones.length">No account phones added</h4>
+        <!-- <div *ngFor="let phone of accountPhones; let i = index;">
+          <div class="row">
+            <span *ngIf="!phone.edit">
+              {{ phone.accountPhone | phone }}
+            </span>
+            <span *ngIf="!phone.edit">
+              {{ phone.accountPhoneName }}
+            </span>
+            <span *ngIf="!phone.edit && data.isAdmin">
+              {{ phone.providerName }}
+            </span>
+            <span *ngIf="phone.edit">
+              <mat-form-field appearance="outline">
+                <mat-label>Account Phone</mat-label>
+                <input matInput [(ngModel)]="phone.accountPhone">
+              </mat-form-field>
+              <button mat-icon-button  color="accent" matTooltip="Cancel" (click)="revertPhone(phone, i)">
+                <mat-icon>close</mat-icon>
+              </button>
+              <button mat-icon-button color="primary" (click)="saveAccountPhone(phone)" matTooltip="Save">
+                <mat-icon>check</mat-icon>
+              </button>
+            </span>
+            <span *ngIf="!phone.edit && data.isAdmin">
+              <button mat-icon-button (click)="editPhone(phone)" matTooltip="Edit">
+                <mat-icon>edit</mat-icon>
+              </button>
+            </span>
+          </div>
+          <div class="phoneProp" *ngIf="phone.edit">
+            <div>
+              <mat-checkbox [(ngModel)]="phone.optInRequired">Opt In Required</mat-checkbox><br><br>
+              <div class="indent" *ngIf="phone.optInRequired">
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Opt In Message</mat-label>
+                  <input type="text" matInput [(ngModel)]="phone.optInMessage">
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Opt In Response</mat-label>
+                  <input type="text" matInput [(ngModel)]="phone.optInResponse">
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Opt In Message Incoming</mat-label>
+                  <input type="text" matInput [(ngModel)]="phone.optInMessageIncoming">
+                </mat-form-field>
+              </div>
+            </div>
+            <div>
+              <mat-form-field appearance="outline">
+                <mat-label>provider</mat-label>
+                <mat-select [(ngModel)]="phone.providerId">
+                  <mat-option *ngFor="let provider of providers" [value]="provider.id">
+                    {{ provider.providerName }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+            <div class="indent" *ngFor="let contorl of getRequiredfields(phone.providerId)">
+              <mat-form-field class="full-width">
+                <input type="text" matInput autocomplete="off" [(ngModel)]="phone[phone.providerId + contorl]" placeholder="{{ contorl }}">
+              </mat-form-field>
+            </div>
+          </div>
+        </div> -->
+        <!-- table markup for above -->
+        <table class="accountPhoneTable">
+          <tr>
+            <th>Phone</th>
+            <th>Name</th>
+            <th>Time Zone</th>
+            <th *ngIf="data.isAdmin">Provider</th>
+            <th>Action</th>
+          </tr>
+          <ng-container *ngFor="let phone of accountPhones; let i = index;">
+            <tr>
+              <td>
+                <span>
+                  {{ phone.accountPhone | phone }} <br>
+                </span>
+                <span *ngIf="phone.edit && data.isAdmin">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Account Phone</mat-label>
+                    <input matInput [(ngModel)]="phone.accountPhone">
+                  </mat-form-field>
+                </span>
+              </td>
+              <td>
+                <span *ngIf="!phone.edit">
+                  {{ phone.accountPhoneName }}
+                </span>
+                <span *ngIf="phone.edit">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Account Phone Name</mat-label>
+                    <input matInput [(ngModel)]="phone.accountPhoneName">
+                  </mat-form-field>
+                </span>
+              </td>
+              <td>
+                <span *ngIf="!phone.edit">
+                  {{ phone.friendlyName }}
+                </span>
+                <span *ngIf="phone.edit">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Time Zone</mat-label>
+                    <mat-select [(ngModel)]="phone.timeZoneName">
+                      <mat-option *ngFor="let timeZone of timeZones" [value]="timeZone.timeZoneName">
+                        {{ timeZone.friendlyName }}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </span>
+              </td>
+              <td *ngIf="data.isAdmin">{{ phone.providerName }}</td>
+              <td>
+                <button mat-icon-button *ngIf="!phone.edit" (click)="editPhone(phone)">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button mat-icon-button *ngIf="phone.edit" color="accent" matTooltip="Revert Changes" (click)="revertPhone(phone, i)">
+                  <mat-icon>close</mat-icon>
+                </button>
+                <button mat-icon-button  *ngIf="phone.edit" color="primary" (click)="saveAccountPhone(phone)" matTooltip="Save">
+                  <mat-icon>check</mat-icon>
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="phone.edit && data.isAdmin" style="border-bottom: 1px solid;">
+              <td colspan="4">
+                <div class="phoneProp" *ngIf="phone.edit">
+                  <div>
+                    <mat-checkbox [(ngModel)]="phone.optInRequired">Opt In Required</mat-checkbox><br><br>
+                    <div class="indent" *ngIf="phone.optInRequired">
+                      <mat-form-field appearance="outline" class="full-width">
+                        <mat-label>Opt In Message</mat-label>
+                        <input type="text" matInput [(ngModel)]="phone.optInMessage">
+                      </mat-form-field>
+                      <mat-form-field appearance="outline" class="full-width">
+                        <mat-label>Opt In Response</mat-label>
+                        <input type="text" matInput [(ngModel)]="phone.optInResponse">
+                      </mat-form-field>
+                      <mat-form-field appearance="outline" class="full-width">
+                        <mat-label>Opt In Message Incoming</mat-label>
+                        <input type="text" matInput [(ngModel)]="phone.optInMessageIncoming">
+                      </mat-form-field>
+                    </div>
+                  </div>
+                  <div>
+                    <mat-form-field appearance="outline">
+                      <mat-label>provider</mat-label>
+                      <mat-select [(ngModel)]="phone.providerId">
+                        <mat-option *ngFor="let provider of providers" [value]="provider.id">
+                          {{ provider.providerName }}
+                        </mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+                  <div class="indent" *ngFor="let contorl of getRequiredfields(phone.providerId)">
+                    <mat-form-field class="full-width">
+                      <input type="text" matInput autocomplete="off" [(ngModel)]="phone[phone.providerId + contorl]" placeholder="{{ contorl }}">
+                    </mat-form-field>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </ng-container>
+        </table>
+      </div>
+      <div>
+        <button mat-stroked-button [mat-dialog-close]="false">Close</button>
+        <button mat-button matStepperPrevious>Back</button>
+        <button mat-flat-button color="primary" (click)="nextStep(stepper)">Next</button>
+      </div>
+    </mat-step>
+    <mat-step [completed]="userStepComplete">
+      <ng-template matStepLabel>Account Users</ng-template>
+      <div class="spacedEle">
+        <!-- <mat-form-field>
+          <mat-label>Users</mat-label>
+          <mat-select (selectionChange)="userSelected($event)" [compareWith]="compareFn" [(ngModel)]="selectedUser">
+            <mat-option>Select a user...</mat-option>
+            <mat-option *ngFor="let globalUser of globalUsers" [value]="globalUser">
+              {{ globalUser.email }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field> -->
+        <!-- <mat-form-field>
+          <mat-label>Look up users</mat-label>
+          <input type="text"
+                 placeholder="Email"
+                 aria-label="Email"
+                 matInput
+                 [formControl]="searchUser"
+                 [matAutocomplete]="userSearchAutocomplete">
+          <mat-autocomplete panelWidth="auto" autoActiveFirstOption #userSearchAutocomplete="matAutocomplete">
+            <mat-option *ngFor="let globalUser of globalUsers" [value]="globalUser.email"
+              (onSelectionChange)="globalUserSelected($event)">
+              {{ globalUser.email }}
+            </mat-option>
+          </mat-autocomplete>
+        </mat-form-field> -->
+        <mat-form-field>
+          <mat-label>User Email</mat-label>
+          <input type="email" matInput [(ngModel)]="lookupEmail">
+        </mat-form-field>
+        <button mat-flat-button color="accent" (click)="verifyUserEmail(lookupEmail)">Check user</button>
+      </div>
+      <div class="usersHolder">
+        <table class="accountUsersTable">
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Manage</th>
+              <th>Read</th>
+              <th>Send New</th>
+              <th>Reply</th>
+              <th>Send MMS</th>
+              <th>Delete Messages</th>
+              <th>Delete Conversation</th>
+              <th>Update Contact</th>
+              <th>Send to Group</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody style="overflow-y: scroll;">
+            <tr *ngFor="let user of accountUsers" [ngClass]="{'edited': user.dirty }">
+              <td>
+                <span style="display: flex; align-items: center;">
+                  <button style="transform: scale(0.8);" *ngIf="data.isAdmin" mat-icon-button (click)="getUserProfile(user)" matTooltip="Click to update profile">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                  {{ user.email }}
+                </span>
+              </td>
+              <td>
+                <mat-checkbox [(ngModel)]="user.canManage" (change)="permissionUpdated(user)"></mat-checkbox>
+              </td>
+              <td>
+                <mat-checkbox [(ngModel)]="user.canRead" (change)="permissionUpdated(user)"></mat-checkbox>
+              </td>
+              <td>
+                <mat-checkbox [(ngModel)]="user.canSendNew" (change)="permissionUpdated(user)"></mat-checkbox>
+              </td>
+              <td>
+                <mat-checkbox [(ngModel)]="user.canReply" (change)="permissionUpdated(user)"></mat-checkbox>
+              </td>
+              <td>
+                <mat-checkbox [(ngModel)]="user.canSendMMS" (change)="permissionUpdated(user)"></mat-checkbox>
+              </td>
+              <td>
+                <mat-checkbox [(ngModel)]="user.canDeleteMessage" (change)="permissionUpdated(user)"></mat-checkbox>
+              </td>
+              <td>
+                <mat-checkbox [(ngModel)]="user.canDeleteConversation" (change)="permissionUpdated(user)"></mat-checkbox>
+              </td>
+              <td>
+                <mat-checkbox [(ngModel)]="user.canUpdateContact" (change)="permissionUpdated(user)"></mat-checkbox>
+              </td>
+              <td>
+                <mat-checkbox [(ngModel)]="user.canSendToGroup" (change)="permissionUpdated(user)"></mat-checkbox>
+              </td>
+              <td style="display: flex;">
+                <button mat-icon-button color="primary" *ngIf="user.dirty" (click)="updateAccountUser(user)" matTooltip="Update">
+                  <mat-icon>check</mat-icon>
+                </button>
+                <button mat-icon-button color="warn" (click)="removeAccountUser(user)" matTooltip="Remove">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <button mat-stroked-button [mat-dialog-close]="false">Close</button>
+        <button mat-button matStepperPrevious>Back</button>
+        <!-- <button mat-flat-button color="primary" (click)="nextStep(stepper)">Next</button> -->
+      </div>
+    </mat-step>
+  </mat-stepper>
+  
+
+</div>
+<div mat-dialog-actions>
+  <span>
+    <!-- <button mat-flat-button color="accent" (click)="close()">Close</button> -->
+    <!-- <button mat-flat-button color="primary" (click)="saveUserSettings()">Save</button> -->
+  </span>
+</div>
