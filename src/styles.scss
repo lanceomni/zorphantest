@@ -1,0 +1,244 @@
+// Custom Theming for Angular Material
+// For more information: https://material.angular.io/guide/theming
+@use '@angular/material' as mat;
+// Plus imports for other components in your app.
+
+// Include the common styles for Angular Material. We include this here so that you only
+// have to load a single css file for Angular Material in your app.
+// Be sure that you only ever include this mixin once!
+@include mat.core();
+@import '~@ctrl/ngx-emoji-mart/picker';
+
+// Define the palettes for your theme using the Material Design palettes available in palette.scss
+// (imported above). For each palette, you can optionally specify a default, lighter, and darker
+// hue. Available color palettes: https://material.io/design/color/
+
+/* For use in src/lib/core/theming/_palette.scss */
+// $mat-zorphan-primary: (
+//     50 : #e0f0e0,
+//     100 : #b3d9b3,
+//     200 : #80c080,
+//     300 : #4da64d,
+//     400 : #269326,
+//     500 : #008000,
+//     600 : #007800,
+//     700 : #006d00,
+//     800 : #006300,
+//     900 : #005000,
+//     A100 : #83ff83,
+//     A200 : #50ff50,
+//     A400 : #1dff1d,
+//     A700 : #03ff03,
+//     contrast: (
+//         50 : #000000,
+//         100 : #000000,
+//         200 : #000000,
+//         300 : #000000,
+//         400 : #ffffff,
+//         500 : #ffffff,
+//         600 : #ffffff,
+//         700 : #ffffff,
+//         800 : #ffffff,
+//         900 : #ffffff,
+//         A100 : #000000,
+//         A200 : #000000,
+//         A400 : #000000,
+//         A700 : #000000,
+//     )
+// );
+$mat-zorphan-primary: (
+  50 : #f2f8e9,
+  100 : #ddefc9,
+  200 : #c7e4a5,
+  300 : #b1d981,
+  400 : #a0d066,
+  500 : #8fc84b,
+  600 : #87c244,
+  700 : #7cbb3b,
+  800 : #72b433,
+  900 : #60a723,
+  A100 : #f0ffe4,
+  A200 : #d3ffb1,
+  A400 : #b6ff7e,
+  A700 : #a7ff64,
+  contrast: (
+      50 : #000000,
+      100 : #000000,
+      200 : #000000,
+      300 : #000000,
+      400 : #000000,
+      500 : #000000,
+      600 : #000000,
+      700 : #000000,
+      800 : #000000,
+      900 : #000000,
+      A100 : #000000,
+      A200 : #000000,
+      A400 : #000000,
+      A700 : #000000,
+  )
+);
+
+
+$mat-zorphan-accent: (
+  50 : #f5f0eb,
+  100 : #e6d9cd,
+  200 : #d6c0ac,
+  300 : #c5a68b,
+  400 : #b89372,
+  500 : #ac8059,
+  600 : #a57851,
+  700 : #9b6d48,
+  800 : #92633e,
+  900 : #82502e,
+  A100 : #ffdec9,
+  A200 : #ffbf96,
+  A400 : #ffa063,
+  A700 : #ff904a,
+  contrast: (
+      50 : #000000,
+      100 : #000000,
+      200 : #000000,
+      300 : #000000,
+      400 : #000000,
+      500 : #000000,
+      600 : #000000,
+      700 : #ffffff,
+      800 : #ffffff,
+      900 : #ffffff,
+      A100 : #000000,
+      A200 : #000000,
+      A400 : #000000,
+      A700 : #000000,
+  )
+);
+// $mat-zorphan-accent: (
+//   50 : #fef4e1,
+//   100 : #fde4b5,
+//   200 : #fcd284,
+//   300 : #fbbf52,
+//   400 : #fab22d,
+//   500 : #f9a408,
+//   600 : #f89c07,
+//   700 : #f79206,
+//   800 : #f68904,
+//   900 : #f57802,
+//   A100 : #ffffff,
+//   A200 : #fff2e8,
+//   A400 : #ffd5b5,
+//   A700 : #ffc79c,
+//   contrast: (
+//       50 : #000000,
+//       100 : #000000,
+//       200 : #000000,
+//       300 : #000000,
+//       400 : #000000,
+//       500 : #000000,
+//       600 : #000000,
+//       700 : #000000,
+//       800 : #000000,
+//       900 : #000000,
+//       A100 : #000000,
+//       A200 : #000000,
+//       A400 : #000000,
+//       A700 : #000000,
+//   )
+// );
+
+$zorphan-primary: mat.define-palette($mat-zorphan-primary);
+$zorphan-accent: mat.define-palette($mat-zorphan-accent);
+
+// The warn palette is optional (defaults to red).
+// $zorphan-warn: mat.define-palette(mat.$red-palette);
+
+// Create the theme object. A theme consists of configurations for individual
+// theming systems such as "color" or "typography".
+$my-app-typography: mat.define-typography-config($font-family: "'Comfortaa', cursive;");
+@include mat.core($my-app-typography);
+$zorphan-theme: mat.define-light-theme((
+  color: (
+    primary: $zorphan-primary,
+    accent: $zorphan-accent,
+  )
+));
+
+// Include theme styles for core and each component used in your app.
+// Alternatively, you can import and @include the theme mixins for each component
+// that you are using.
+@include mat.all-component-themes($zorphan-theme);
+
+/* You can add global styles to this file, and also import other style files */
+
+html, body { height: 100%; }
+body { margin: 0; font-family: 'Comfortaa', cursive; }
+
+.mat-toolbar-single-row.sidenavToggleBtn {
+  padding: 0 8px;
+}
+
+.navIcons {
+  .mat-list-item {
+    .mat-list-item-content {
+      padding: 0 8px !important;
+    }
+  }
+}
+
+.roundedBtn {
+  padding-left: 30px;
+  padding-right: 30px;
+  border-radius: 20px !important;
+}
+
+.roundedTooltip {
+  background-color: var(--primary) !important;
+  color: #f5f7ff !important;
+  margin-right: -1px !important;
+  font-size: 1em;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+}
+
+.accentTooltip {
+  background-color: var(--accent) !important;
+  margin-right: -1px !important;
+  font-size: 1em;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+}
+
+.hidden {
+  display: none;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.compactField .mat-form-field-wrapper {
+  margin-bottom: -1.25em;
+}
+
+:root {
+  // --primary: #008000;
+  --primary: #8fc84b;
+  // --primary_light: #7cfc0026;
+  // --primary_light: #b0d385;
+  --primary_light: #cedfba;
+  // --accent: #f48442;
+  // --accent: #f9a408;
+  --accent: #ac8059;
+}
+
+.smallIcon {
+  font-size: 1.2em;
+}
+
+.mat-select-panel .mat-option.multiLine-mat-option {
+  height: unset;
+  line-height: 1.8em;
+  border-bottom: 0.01px;
+  margin-bottom: 1.4em;
+}
+
+.multiLine-mat-option .mat-option-text {
+  white-space: normal;
+}
