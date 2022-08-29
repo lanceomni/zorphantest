@@ -1,0 +1,97 @@
+.container {
+  height: 100vh;
+}
+
+.holder {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 2em;
+}
+
+.searchOption {
+  margin-top: 2em;
+  position: sticky;
+  z-index: 1;
+  top: 0;
+  background-color: white;
+}
+
+.listHolder {
+  flex-grow: 1;
+  overflow: auto;
+}
+
+.spacedEle > * {
+  margin-left: 8px;
+  margin-right: 8px;
+}
+
+.metaRow {
+  margin-left: 16px;
+}
+
+.bigText {
+  font-size: 1.2em;
+  margin: 16px 0px 0px 0px;
+  padding: 8px;
+  background-color: #efefef;
+  border-radius: 5px;
+}
+
+.apartEles {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.indent {
+  margin-left: 1.4em;
+}
+
+.messageBox {
+  // border: 1px solid grey;
+  margin: 8px 0px;
+  padding: 8px;
+  border-radius: 5px;
+}
+
+.detailDiv {
+  margin: 16px 0px;
+}
+
+.dateControls {
+  display: flex;
+  align-items: center;
+}
+
+.dateControls > * {
+  margin-left: 8px;
+  margin-right: 8px;
+}
+
+.shortControl {
+  width: 60px;
+}
+
+.errMsg {
+  color: red;
+}
+
+.spacedCheck > * {
+  margin-left: 4px;
+  margin-right: 4px;
+}
+
+.liteText {
+  color: grey;
+  font-size: 0.8em;
+}
+
+@media only screen and (min-width: 768px) {
+  .holder {
+    max-width: 70%;
+    margin: auto;
+    background-color: white;
+  }
+}

@@ -1,0 +1,120 @@
+<h1 mat-dialog-title>{{data.title}}</h1>
+<div mat-dialog-content>
+  <div class="container">
+    <mat-accordion multi class="settingsPanel" displayMode="flat">
+      <mat-expansion-panel hideToggle expanded>
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <span class="rowItems">
+              <mat-icon>account_circle</mat-icon>
+              Account
+            </span>
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <div class="panelItem">
+          <span>Use Two-Factor Authentication</span>
+          <mat-slide-toggle [(ngModel)]="userPref.twoFactorEnabled" (change)="settingsUpdated()" color="primary">
+          </mat-slide-toggle>
+        </div>
+      </mat-expansion-panel>
+      <mat-expansion-panel hideToggle expanded>
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <span class="rowItems">
+              <mat-icon>web_asset</mat-icon>
+              Application
+            </span>
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <div class="panelItem">
+          <span>Hide Tag filter</span>
+          <mat-slide-toggle [(ngModel)]="userPref.hideTagFilter" (change)="settingsUpdated()" color="primary">
+          </mat-slide-toggle>
+        </div>
+      </mat-expansion-panel>
+      <mat-expansion-panel hideToggle expanded>
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <span class="rowItems">
+              <mat-icon>chat_bubble</mat-icon>
+              Messages
+            </span>
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <div class="panelItem">
+          <span>Enter is Send</span>
+          <mat-slide-toggle [(ngModel)]="userPref.enterIsSend" (change)="settingsUpdated()" color="primary">
+          </mat-slide-toggle>
+        </div>
+        <div class="panelItem">
+          <mat-form-field>
+            <mat-label>Signature</mat-label>
+            <textarea type="text" matInput [(ngModel)]="userPref.signature" cdkTextareaAutosize
+              #signatureAutoSize="cdkTextareaAutosize" placeholder="Signature" cdkAutosizeMinRows="1"
+              cdkAutosizeMaxRows="5" (keyup)="textUpdate('signature', userPref.signature)">
+            </textarea>
+            <mat-hint *ngIf="userPref && userPref.signature">{{ userPref.signature.length }}</mat-hint>
+          </mat-form-field>
+        </div>
+        <div class="panelItem">
+          <span>Include signature</span>
+          <mat-slide-toggle [(ngModel)]="userPref.signatureOn" (change)="settingsUpdated()" color="primary">
+          </mat-slide-toggle>
+        </div>
+        <div class="panelItem">
+          <span>Show Last Message in Conversation List</span>
+          <mat-slide-toggle [(ngModel)]="userPref.showLastMessage" (change)="settingsUpdated()" color="primary">
+          </mat-slide-toggle>
+        </div>
+      </mat-expansion-panel>
+      <mat-expansion-panel hideToggle expanded>
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <span class="rowItems">
+              <mat-icon>notifications</mat-icon>
+              Notifications
+            </span>
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <div class="panelItem" *ngIf="notificationSupported">
+          <span>Subscribe to notifications (Sends notifications when {{ appName }} is in background or closed)</span>
+          <span>
+            <button mat-flat-button color="primary" (click)="subscribe()" [disabled]="subPending">
+              Subscribe
+              <mat-icon>notifications_active</mat-icon>
+            </button>
+          </span>
+        </div>
+        <div class="panelItem">
+          <div style="flex: 1;">
+            <h3>Active Notifications</h3>
+            <table>
+              <tr>
+                <th>Description</th>
+                <th>Date Created</th>
+                <th>Is iOS</th>
+                <th>Action</th>
+              </tr>
+              <tr *ngFor="let sub of previousSubs">
+                <td>{{ sub.description }}</td>
+                <td>{{ sub.dtCreated | date:'short' }}</td>
+                <td>{{ sub.isAPNS }}</td>
+                <td>
+                  <button mat-icon-button color="warn" matTooltip="Un-subscribe" (click)="confirmUnSub(sub)">
+                    <mat-icon>delete_forever</mat-icon>
+                  </button>
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      </mat-expansion-panel>
+    </mat-accordion>
+  </div>
+</div>
+<div mat-dialog-actions>
+  <span>
+    <button mat-flat-button color="accent" (click)="close()">Close</button>
+    <button mat-flat-button color="primary" (click)="saveUserSettings()">Save</button>
+  </span>
+</div>

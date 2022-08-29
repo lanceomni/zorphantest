@@ -1,0 +1,84 @@
+<ngx-loading-bar [color]="'green'"></ngx-loading-bar>
+<mat-sidenav-container class="sidenav-container" autosize>
+  <mat-sidenav #drawer id="drawer" fixedInViewport
+      [attr.role]="(isHandset$ | async) ? 'dialog' : 'navigation'"
+      [mode]="(isHandset$ | async) ? 'over' : 'side'"
+      [opened]="(isHandset$ | async) && loggedInUser && loggedInUser.userName">
+    <div class="sidenav">
+      <div class="header">
+        <mat-toolbar class="sidenavToggleBtn">
+          <button mat-icon-button (click)="expandSideNav(drawer)" color="primary" *ngIf="loggedInUser && loggedInUser.userName">
+            <mat-icon aria-label="Menu">menu</mat-icon>
+          </button>
+          <h4 *ngIf="isExpanded" class="primaryText">{{ appName }}</h4>
+        </mat-toolbar>
+      </div>
+      <div class="content">
+        <mat-nav-list class="navIcons" *ngIf="loggedInUser && loggedInUser.userName">
+          <mat-list-item routerLink="messages" [routerLinkActive]="activeMenuClass" matTooltip="Messages" matTooltipClass="roundedTooltip" matTooltipPosition="right">
+            <mat-icon mat-list-icon>chat_bubble</mat-icon>
+            <h4 mat-line *ngIf="isExpanded">Messages</h4>
+          </mat-list-item>
+          <mat-list-item routerLink="contacts" [routerLinkActive]="activeMenuClass" matTooltip="Contacts" matTooltipClass="roundedTooltip" matTooltipPosition="right">
+            <mat-icon mat-list-icon>contacts</mat-icon>
+            <h4 mat-line *ngIf="isExpanded">Contacts</h4>
+          </mat-list-item>
+          <mat-list-item matTooltip="Scheduled Messages" matTooltipClass="roundedTooltip" matTooltipPosition="right" (click)="openScheduledDrafts()">
+            <mat-icon mat-list-icon>watch_later</mat-icon>
+            <h4 mat-line *ngIf="isExpanded">Scheduled Messages</h4>
+          </mat-list-item>
+          <mat-list-item matTooltip="Templates" routerLink="templates" [routerLinkActive]="activeMenuClass" matTooltipClass="roundedTooltip" matTooltipPosition="right">
+            <mat-icon mat-list-icon>content_paste</mat-icon>
+            <h4 mat-line *ngIf="isExpanded">Templates</h4>
+          </mat-list-item>
+          <mat-list-item matTooltip="Settings" matTooltipClass="roundedTooltip" matTooltipPosition="right" (click)="openSettings()">
+            <mat-icon mat-list-icon>settings</mat-icon>
+            <h4 mat-line *ngIf="isExpanded">Settings</h4>
+          </mat-list-item>
+          <mat-list-item routerLink="responder" [routerLinkActive]="activeMenuClass" matTooltip="Auto Responders" matTooltipClass="roundedTooltip" matTooltipPosition="right">
+            <mat-icon mat-list-icon>reply</mat-icon>
+            <h4 mat-line *ngIf="isExpanded">Auto Responders</h4>
+          </mat-list-item>
+          <mat-list-item routerLink="accounts" [routerLinkActive]="activeMenuClass" matTooltip="Admin" matTooltipClass="roundedTooltip" matTooltipPosition="right">
+            <mat-icon mat-list-icon>admin_panel_settings</mat-icon>
+            <h4 mat-line *ngIf="isExpanded">Admin</h4>
+          </mat-list-item>
+        </mat-nav-list>
+      </div>
+      <div class="footer">
+        <mat-nav-list class="navIcons">
+          <mat-list-item *ngIf="loggedInUser && loggedInUser.userName"  matTooltip="{{ loggedInUser.userName }}" [matMenuTriggerFor]="accountMenu" matTooltipClass="roundedTooltip" matTooltipPosition="right">
+            <span mat-list-icon class="accIcon">{{ loggedInUser.userName[0] }}</span>
+            <h4 mat-line *ngIf="isExpanded">{{ loggedInUser.userName }}</h4>
+          </mat-list-item>
+        </mat-nav-list>
+      </div>
+    </div>
+  </mat-sidenav>
+  <mat-sidenav-content>
+    <!-- Add Content Here -->
+    <!-- <mat-toolbar *ngIf="(isHandset$ | async)" color="primary">
+      <button
+      type="button"
+      aria-label="Toggle sidenav"
+      mat-icon-button
+      (click)="drawer.toggle(); isExpanded = true;" *ngIf="loggedInUser && loggedInUser.userName">
+      <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
+    </button>
+    <h4>{{ appName }}</h4>
+    </mat-toolbar> -->
+    <router-outlet></router-outlet>
+  </mat-sidenav-content>
+</mat-sidenav-container>
+
+
+<mat-menu #accountMenu="matMenu">
+  <button mat-menu-item (click)="manageProfile()">
+    <mat-icon>account_box</mat-icon>
+    <span>Profile</span>
+  </button>
+  <button mat-menu-item (click)="logout()">
+    <mat-icon>logout</mat-icon>
+    <span>Logout</span>
+  </button>
+</mat-menu>

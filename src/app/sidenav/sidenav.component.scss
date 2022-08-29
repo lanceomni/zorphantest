@@ -1,0 +1,36 @@
+.sidenav-container {
+  height: 100%;
+}
+
+.mat-toolbar.mat-primary {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.sidenav {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.content {
+  flex-grow: 1;
+  overflow: auto;
+}
+
+.lightMenuActive {
+  // background-color: rgb(0, 61, 165, 0.3);
+  color: var(--primary);
+}
+
+.primaryText {
+  color: var(--primary);
+}
+
+.accIcon {
+  background-color: var(--accent);
+  font-size: 1em;
+  border: 1px solid;
+  color: whitesmoke;
+}

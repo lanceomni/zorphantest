@@ -1,0 +1,63 @@
+<h1 mat-dialog-title>{{data.title}}</h1>
+<div mat-dialog-content>
+  <div>
+    <form [formGroup]="templateForm" class="form">
+      <span>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Template Name</mat-label>
+          <input matInput formControlName="templateName">
+          <mat-error *ngIf="templateForm.get('templateName')?.hasError('required')">
+            Required
+          </mat-error>
+        </mat-form-field>
+      </span>
+      <span>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Template Text</mat-label>
+          <textarea matInput id="templateBox" formControlName="templateText" cdkTextareaAutosize #autosize="cdkTextareaAutosize"
+            cdkAutosizeMinRows="1" cdkAutosizeMaxRows="5"></textarea>
+          <mat-error *ngIf="templateForm.get('templateText')?.hasError('required')">
+            Required
+          </mat-error>
+        </mat-form-field>
+        <mat-hint class="farApart">
+          <span>
+            <button type="button" matTooltip="Emoji" mat-icon-button *ngIf="(isLarge$ | async)"
+              style="transform: scale(0.8);" (click)="toggleEmojiList($event)">
+              <mat-icon>emoji_emotions</mat-icon>
+            </button>
+            <emoji-mart title="Pick your emoji…" [backgroundImageFn]="backgroundImageFn" (click)="pauseEmojiClose($event)" *ngIf="showEmojiList" (emojiClick)="addEmoji($event)" emoji="point_up"></emoji-mart>
+          </span>
+          <span>
+            <!-- {{ templateForm.value.templateText.length }}/600 -->
+            <span [ngClass]="(msgLmits.cnt > 600) ? 'errMsg' : 'warnMsg'" *ngIf="msgLmits.cnt > 160">
+              {{ msgLmits.msg }}
+            </span>
+            {{ msgLmits.cnt }} / 600
+          </span>
+        </mat-hint>
+      </span>
+      <span>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Make available only for</mat-label>
+          <mat-select formControlName="accountPhoneFilter" multiple>
+            <mat-option *ngFor="let accountPhone of accountPhones" [value]="accountPhone.accountPhone">
+              {{ accountPhone.accountPhoneName }} - ({{ accountPhone.accountPhone | phone }} )
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </span>
+      <span>
+        <!-- <mat-form-field appearance="outline"> -->
+          <mat-slide-toggle formControlName="isPublic">Make public</mat-slide-toggle>
+        <!-- </mat-form-field> -->
+      </span>
+    </form>
+  </div>
+</div>
+<div mat-dialog-actions>
+  <span>
+    <button mat-flat-button color="accent" [mat-dialog-close]="false">Close</button>
+    <button mat-flat-button color="primary" (click)="saveTemplate(templateForm)" cdkFocusInitial>Save</button>
+  </span>
+</div>

@@ -1,0 +1,61 @@
+<h2 mat-dialog-title>{{data.title}}</h2>
+<div mat-dialog-content>
+  <div>
+    <h3 style="font-weight: bold;">Assigned tags for (
+      <span *ngIf="data.contact.contact1 || data.contact.contact2">
+        {{ data.contact.contact1 }} - {{ data.contact.contact2 }}
+      </span>
+      <span *ngIf="!data.contact.contact1 && !data.contact.contact2">
+        {{ data.contact.phoneNumber | phone }}
+      </span>
+      )
+    </h3>
+    <div class="spacedEles" style="width: 50%;">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Assigned tags</mat-label>
+        <mat-select multiple [(ngModel)]="assignedTags" (selectionChange)="contactTagSelected($event)" [disabled]="inProgress">
+          <mat-option *ngFor="let tag of tags" [value]="tag.tag">{{tag.tag}}</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+    <div>
+      <button mat-flat-button (click)="toggleManage()" color="accent">
+        Manage Tags
+        <mat-icon>local_offer</mat-icon>
+      </button>
+    </div>
+  </div>
+  <div *ngIf="showManageTags">
+    <br>
+    <hr>
+    <div class="spacedEles">
+      <h4>Create New Tag</h4>
+      <mat-form-field appearance="outline">
+        <mat-label>Tag Name</mat-label>
+        <input matInput placeholder="Tag" [(ngModel)]="newTag" (keyup.enter)="saveTag(data.accountPhone.accountPhone, newTag)">
+        <mat-hint class="error" *ngIf="newTag.indexOf(' ') > -1">Spaces not allowed</mat-hint>
+      </mat-form-field>
+      <button mat-flat-button color="primary" (click)="saveTag(data.accountPhone.accountPhone, newTag)" *ngIf="newTag">
+        Add
+      </button>
+    </div>
+    <div>
+      <h5>All tags</h5>
+      <mat-chip-list>
+        <mat-chip *ngFor="let tag of tags" selected>
+          {{ tag.tag }}
+          <button mat-icon-button (click)="confirmDeleteTag(data.accountPhone.accountPhone, tag.tag)" matTooltip="Remove Tag">
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-chip>
+      </mat-chip-list>
+    </div>
+    <br>
+  </div>
+ 
+</div>
+<div mat-dialog-actions>
+  <span>
+    <button mat-flat-button color="accent" [mat-dialog-close]="false">Close</button>
+  </span>
+</div>

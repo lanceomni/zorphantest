@@ -1,0 +1,57 @@
+.container {
+  // height: 100vh;
+  display: flex;
+  flex-direction: column;
+  margin: 10px;
+  padding: 20px;
+  border: 0.1px solid grey;
+  border-radius: 5px;
+}
+
+.dash {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.templateHolder {
+  margin: 8px 16px;
+}
+
+.templateHeader {
+  font-size: 1.2em;
+  font-weight: bold;
+  margin: 8px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.templateText {
+  margin: 2px 16px 16px 16px;
+  background-color: lightgrey;
+  padding: 16px;
+  border-radius: 5px;
+}
+
+.flexClmn {
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  display: flex;
+  flex-direction: row;
+}
+
+.grpIcon {
+  margin: 0px 16px;
+  color: var(--primary);
+}
+
+@media only screen and (min-width: 768px) {
+  /* For desktop: */
+  .container {
+    margin: 40px;
+  }
+}

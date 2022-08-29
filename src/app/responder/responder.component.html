@@ -1,0 +1,108 @@
+<div class="container">
+  <div class="holder">
+    <div>
+      <h2>
+        <button *ngIf="(isSmall$ | async)" type="button" aria-label="Toggle sidenav" mat-icon-button
+          (click)="toggleSideNav($event)">
+          <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
+        </button>
+        Auto Responders
+      </h2>
+      <div class="apartEles">
+        <mat-form-field class="compactField">
+          <mat-label>Account phone</mat-label>
+          <mat-select #accPhoneSelect [(ngModel)]="selectedAccountPhone" (selectionChange)="accPhoneChanged()">
+            <mat-option disabled class="searchOption">
+              <mat-form-field>
+                <input type="text" placeholder="search" matInput [formControl]="searchAccPhone"
+                  (click)="$event.stopPropagation();$event.preventDefault();">
+              </mat-form-field>
+            </mat-option>
+            <mat-option *ngFor="let accPhone of filteredAccPhones; trackBy: getId" [value]="accPhone">
+              {{ accPhone.accountPhone | phone }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        <span class="spacedEle">
+          <!-- <button disabled mat-flat-button *ngIf="dirtyResponders && dirtyResponders.length">
+            Un Saved Changes ({{ dirtyResponders.length }})
+          </button> -->
+          <button color="accent" mat-flat-button (click)="editAfterHours()">
+            Office hours
+          </button>
+          <button color="primary" mat-flat-button (click)="addResponder()">
+            New Responder
+            <mat-icon>add</mat-icon>
+          </button>
+        </span>
+      </div>
+
+    </div>
+    <div class="listHolder">
+      <div *ngFor="let responder of responders; let i = index" style="margin-bottom: 32px;">
+        <div>
+          <div class="metaRow spacedEle">
+            <span>
+              {{ i + 1 }}.
+            </span>
+            <span>
+              <mat-slide-toggle [(ngModel)]="responder.enabled" (change)="saveEachResponder(responder)">
+                {{ responder.enabled ? 'On' : 'Off' }}</mat-slide-toggle>
+            </span>
+            <span style="font-size: 1.3em; font-weight: bold;">
+              {{ responder.scheduleName }}
+            </span>
+            <!-- <span>
+              <mat-slide-toggle [(ngModel)]="responder.showDates">Add Dates</mat-slide-toggle>
+            </span> -->
+            <!-- <span *ngIf="responder.showDates">
+              <mat-form-field appearance="outline">
+                <input matInput [(ngModel)]="responder.startDt" (click)="startPicker.open();"
+                  [ngxMatDatetimePicker]="startPicker" placeholder="Start date">
+                <button mat-icon-button matSuffix (click)="startPicker.open(); $event.stopPropagation();">
+                  <mat-icon>event</mat-icon>
+                </button>
+                <ngx-mat-datetime-picker #startPicker [hideTime]="true">
+                </ngx-mat-datetime-picker>
+              </mat-form-field>
+            </span>
+            <span *ngIf="responder.showDates">
+              <mat-form-field appearance="outline">
+                <input matInput [(ngModel)]="responder.endDt" (click)="endPicker.open();"
+                  [ngxMatDatetimePicker]="endPicker" placeholder="End Date">
+                <button mat-icon-button matSuffix (click)="endPicker.open(); $event.stopPropagation();">
+                  <mat-icon>event</mat-icon>
+                </button>
+                <ngx-mat-datetime-picker #endPicker [hideTime]="true">
+                </ngx-mat-datetime-picker>
+              </mat-form-field>
+            </span> -->
+            <button mat-icon-button color="accent" matTooltip="Edit"
+              (click)="openEditResponder(responder)">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button color="warn" matTooltip="Edit"
+              (click)="deleteResponder(responder)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </div>
+        <div class="bigText">
+          <span>
+            <div [innerText]="responder.template" class="messageBox"></div>
+          </span>
+        </div>
+        <div class="apartEles liteText">
+          <span>
+            <span *ngIf="responder.searchPhrase">
+              Keyword: {{ responder.searchPhrase }}
+            </span>
+          </span>
+          <span>
+            {{ responder.timeMode | timeMode }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

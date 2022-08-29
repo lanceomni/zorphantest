@@ -1,0 +1,62 @@
+<div class="container">
+  <div class="header">
+    <button *ngIf="(isSmall$ | async)" aria-label="Toggle sidenav" mat-icon-button (click)="toggleSideNav($event)">
+      <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
+    </button>
+    <h2>Templates</h2>
+    <span style="margin-left: 2rem;">
+      <mat-form-field>
+        <mat-label>Account Phone</mat-label>
+        <mat-select #accPhoneSelect [compareWith]="accPhoneCompareFn"[(ngModel)]="selectedAccountPhone" (selectionChange)="accPhoneChanged()" >
+          <!-- <mat-option disabled class="searchOption">
+            <mat-form-field class="full-width">
+              <input type="text" placeholder="search" matInput [formControl]="searchAccPhone" (keydown)="$event.stopPropagation();" (click)="$event.stopPropagation();$event.preventDefault();">
+            </mat-form-field>
+          </mat-option> -->
+          <!-- <mat-option disabled *ngIf="!filteredAccPhones || !filteredAccPhones.length">
+            No resutls found
+          </mat-option> -->
+          <mat-option class="multiLine-mat-option" *ngFor="let accPhone of accountPhones" [value]="accPhone">
+            <span class="flexClmn">
+              <span>
+                {{ accPhone.accountPhone | phone }}
+              </span>
+              <span>
+                {{ accPhone.accountPhoneName }}
+              </span>
+            </span>
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </span>
+  </div>
+  <div>
+    <div class="dash">
+      <input type="text" placeholder="Search" [formControl]="searchTemplates">
+      <button mat-flat-button color="accent" (click)="openTemplateDialog('')">Add Template</button>
+    </div>
+    <div>
+      <div *ngFor="let template of filteredTemplates">
+        <div class="templateHeader">
+          <span style="display: flex; align-items: center;">
+            <mat-icon *ngIf="template.isPublic" class="grpIcon" matTooltip="Public Template">groups</mat-icon>
+            {{ template.templateName }}
+          </span> 
+          <span>
+            <button mat-icon-button matTooltip="Edit Template" *ngIf="template.userId === user.id" (click)="openTemplateDialog(template)">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button matTooltip="Delete Template" *ngIf="template.userId === user.id" (click)="confirmDelete(template)">
+              <mat-icon>delete</mat-icon>
+            </button>
+            <span *ngIf="template.userId !== user.id" style="font-size: 0.8em; font-weight: normal;">
+              by {{ template.userName }}
+            </span>
+          </span>
+        </div>
+        <div class="templateText" [innerHtml]="template.templateText | safeHtml">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

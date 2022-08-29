@@ -1,0 +1,151 @@
+<h1 mat-dialog-title>
+  <span class="apartEles">
+    <span>
+      {{data.title}}
+    </span>
+    <span class="textLink" (click)="openOfficeHours()">
+      View Office Hours
+    </span>
+  </span>
+</h1>
+<div mat-dialog-content>
+  <div>
+    <div>
+      <div>
+        <mat-form-field class="full-width" appearance="outline">
+          <mat-label>Responder Name</mat-label>
+          <input matInput [(ngModel)]="data.responder.scheduleName">
+        </mat-form-field>
+      </div>
+      <div>
+        <mat-form-field class="full-width compact" appearance="outline">
+          <mat-label>Message</mat-label>
+          <textarea matInput cdkTextareaAutosize id="templateBox"
+            [(ngModel)]="data.responder.template"
+            (ngModelChange)="charCount(data.responder.template)">
+          </textarea>
+        </mat-form-field>
+      </div>
+      <div class="apartEles" style="font-size: 0.7em;">
+        <span>
+          <button type="button" matTooltip="Emoji" mat-icon-button style="transform: scale(0.8);"
+            (click)="toggleEmojiList($event)">
+            <mat-icon>emoji_emotions</mat-icon>
+          </button>
+          <emoji-mart title="Pick your emoji…" [backgroundImageFn]="backgroundImageFn" (click)="pauseEmojiClose($event)"
+            *ngIf="showEmojiList" (emojiClick)="addEmoji($event)" emoji="point_up"></emoji-mart>
+          <button mat-icon-button matTooltip="Templates" (click)="templateOpened()" style="transform: scale(0.8);" [matMenuTriggerFor]="templateMenu"
+            #templateMenuTrigger>
+            <mat-icon>content_paste</mat-icon>
+          </button>
+        </span>
+        <span class="verticalCenter">
+          <span>
+            {{ msgLmits.cnt }} / 600
+            <span [ngClass]="(msgLmits.cnt > 600) ? 'errorMsg' : 'warnMsg'" *ngIf="msgLmits.cnt > 160">
+              {{ msgLmits.msg }}
+            </span>
+          </span>
+        </span>
+      </div><br>
+      <div>
+        <mat-form-field class="full-width" appearance="outline">
+          <mat-label>Keyword (Optional)</mat-label>
+          <input matInput [(ngModel)]="data.responder.searchPhrase">
+        </mat-form-field>
+      </div>
+      <div>
+        <mat-radio-group class="radioGrp" aria-label="Select responder mode" [(ngModel)]="data.responder.timeMode">
+          <mat-radio-button [value]=0>All Times</mat-radio-button>
+          <mat-radio-button [value]=1>Office Hours</mat-radio-button>
+          <mat-radio-button [value]=2>After Hours</mat-radio-button>
+          <mat-radio-button [value]=3>Custom Time</mat-radio-button>
+        </mat-radio-group>
+      </div>
+    </div>
+    <!-- <div class="detailDiv" *ngIf="data.responder.timeMode === 3">
+      <span class="dateControls">
+        From:
+        <ngx-mat-timepicker [enableMeridian]="true" [showSpinners]="false"></ngx-mat-timepicker>
+        To:
+        <ngx-mat-timepicker [enableMeridian]="true" [showSpinners]="false"></ngx-mat-timepicker>
+      </span>
+      <div class="spacedCheck">
+        <span *ngFor="let weekName of dayNames">
+          <mat-checkbox color="accent">
+            {{ weekName }}
+          </mat-checkbox>
+        </span>
+      </div>
+    </div> -->
+    <div *ngIf="data.responder.timeMode === 3">
+      <button mat-flat-button color="accent" (click)="addNewSchedule(data.responder)" style="margin-top: 16px">
+        <mat-icon>add</mat-icon>
+        New Schedule
+      </button>
+      <div class="detailDiv" *ngFor="let detail of data.responder.details; let j = index;">
+        <ng-container *ngIf="true">
+          <div class="spacedEle" style="margin-left: 16px; margin-bottom: 8px;">
+            <span class="dateControls">
+              --> From:
+              <mat-form-field class="shortControl">
+                <mat-select [(ngModel)]="detail.fromWeekTime.dayName" (selectionChange)="validateTimeRange(detail)">
+                  <mat-option *ngFor="let dayName of dayNames" [value]="dayName">
+                    {{ dayName }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+              <ngx-mat-timepicker [(ngModel)]="detail.fromWeekTime.date" (ngModelChange)="validateTimeRange(detail)"
+                [enableMeridian]="true" [showSpinners]="false"></ngx-mat-timepicker>
+              To:
+              <mat-form-field class="shortControl">
+                <mat-select [(ngModel)]="detail.toWeekTime.dayName" (selectionChange)="validateTimeRange(detail)">
+                  <mat-option *ngFor="let dayName of dayNames" [value]="dayName">
+                    {{ dayName }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+              <ngx-mat-timepicker [(ngModel)]="detail.toWeekTime.date" (ngModelChange)="validateTimeRange(detail)"
+                [enableMeridian]="true" [showSpinners]="false"></ngx-mat-timepicker>
+              <button mat-icon-button color="warn" matTooltip="Delete" (click)="removeDetail(data.responder, detail, j)">
+                <mat-icon>delete_outline</mat-icon>
+              </button>
+            </span>
+          </div>
+          <span *ngIf="detail.errorMsg">
+            <span class="errMsg">{{ detail.errorMsg }}</span><br>
+          </span>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+</div>
+<div mat-dialog-actions>
+  <span>
+    <button mat-flat-button color="accent" (click)="cancel()">Close</button>
+    <button mat-flat-button color="primary" (click)="saveEachResponder(data.responder)" cdkFocusInitial>Save</button>
+  </span>
+</div>
+
+<mat-menu #templateMenu="matMenu">
+  <ng-template matMenuContent>
+    <div class="templateHolder searchOption">
+      <input class="full-width" (click)="$event.stopPropagation()" type="text" placeholder="Search"
+        [formControl]="searchTemplates">
+      <div class="templateLink" (click)="manageTemplates()">
+        Manage templates
+      </div>
+    </div>
+    <div class="templateHolder" *ngIf="filteredTemplates && !filteredTemplates.length">
+      No Templates found
+    </div>
+    <div class="templateHolder" *ngFor="let template of filteredTemplates" (click)="templateSelected(template)">
+      <div class="templateHeader truncatedText">
+        {{ template.templateName }}
+      </div>
+      <div class="templateBody truncatedText">
+        {{ template.templateText }}
+      </div>
+    </div>
+  </ng-template>
+</mat-menu>
