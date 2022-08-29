@@ -1,0 +1,657 @@
+<div class="container">
+  <audio id="notifyAudio" src="https://s3.amazonaws.com/zorphan.com/new_message_track.mp3" style="display: none;"></audio>
+  <div class="contacts" (click)="showEmojiList = false;" [@slideInOut]="(isHandset$ | async) ? 'leave': ''"
+    *ngIf="(isLarge$ | async) || !selectedContact" [ngClass]="{'expand': (isHandset$ | async)}"
+    mwlResizable (resizeEnd)="contactDivResized($event)" [enableGhostResize]="true">
+    <div class="accNumberHolder">
+      <!-- <mat-select class="accSelection" #accPhoneSelect [(ngModel)]="selectedAccountPhone" (selectionChange)="accPhoneChanged()">
+        <mat-option disabled class="searchOption">
+          <mat-form-field class="full-width">
+            <input type="text" placeholder="search" matInput [formControl]="searchAccPhone" (keydown)="$event.stopPropagation();" (click)="$event.stopPropagation();$event.preventDefault();">
+          </mat-form-field>
+        </mat-option>
+        <mat-option disabled *ngIf="!filteredAccPhones || !filteredAccPhones.length">
+          No resutls found
+        </mat-option>
+        <mat-option class="multiLine-mat-option" *ngFor="let accPhone of filteredAccPhones" [value]="accPhone">
+          <span class="flexClmn">
+            <span>
+              {{ accPhone.accountPhone | phone }}
+            </span>
+            <span>
+              {{ accPhone.accountPhoneName }}
+            </span>
+          </span>
+        </mat-option>
+      </mat-select> -->
+      <span class="accNumber" *ngIf="selectedAccountPhone" (click)="openAccountPhoneDialog()">
+        <span style="text-overflow:ellipsis; overflow: hidden; text-align: left; margin: 2px 8px;">
+          <button *ngIf="!(isLarge$ | async)" type="button" aria-label="Toggle sidenav" mat-icon-button (click)="toggleSideNav($event)">
+            <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
+          </button>
+          @ {{ selectedAccountPhone.accountPhone | phone }}
+          {{ selectedAccountPhone.accountPhoneName }}
+        </span>
+        <span style="text-align: left; margin: 2px 8px;">
+          Unread - {{ selectedAccountPhone.unreadMessages }}
+        </span>
+        <!-- <span style="text-align: left; margin: 2px 8px;">
+          Total Unread - {{ totalUnread }}
+        </span> -->
+      </span>
+      <span style="cursor: pointer; border-left: 0.001px solid;" matTooltip="Notifications" (click)="openPendingNotifications()">
+        <mat-icon id="bell">notifications</mat-icon>
+        {{ otherNotifications.length }}
+      </span>
+    </div>
+    <div class="contactsHeader">
+      <div class="mRow">
+        <mat-form-field class="first" appearance="outline" [ngClass]="{'compact-input': true, 'highlightControl': contactSearch.value }">
+          <input type="text" matInput placeholder="Search" [formControl]="contactSearch">
+          <button matSuffix mat-icon-button aria-label="Clear" matTooltip="Clear" (click)="contactSearch.reset()">
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-form-field>
+        <span class="second" matTooltip="{{ (selectedAccountPhone && selectedAccountPhone.canSendNew) ? 'New Message' : 'No permission to send new message'}}">
+          <button mat-mini-fab color="accent" disabled="{{ selectedAccountPhone && !selectedAccountPhone.canSendNew }}" matTooltipClass="accentTooltip" (click)="newMessage()">
+            <mat-icon>add_comment</mat-icon>
+          </button>
+        </span>
+      </div>
+      <div>
+        <mat-form-field [ngClass]="{'full-width': true, 'highlightControl': page.filter }">
+          <mat-label>Filter by</mat-label>
+          <mat-select [(ngModel)]="page.filter" (selectionChange)="contactFilterUpdated()">
+            <mat-option value="">All</mat-option>
+            <mat-option *ngFor="let filter of filters" [value]="filter">{{filter}}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div *ngIf="!userPref || !userPref.hideTagFilter">
+        <mat-form-field [ngClass]="{'full-width': true, 'highlightControl': page.selectedTags && page.selectedTags.length }">
+          <mat-label>Tag Filter</mat-label>
+          <mat-select [(ngModel)]="page.selectedTags" multiple (selectionChange)="contactFilterUpdated()">
+            <mat-option *ngFor="let tag of tags" [value]="tag.tag">{{tag.tag}}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </div>
+    <cdk-virtual-scroll-viewport #contactScroller class="contactsContent" [itemSize]="75">
+      <div *ngIf="contacts && !contacts.length" style="text-align: center;margin-top: 16px;">
+        No Data
+      </div>
+      <div class="contactCard"
+        [ngClass]="{'selectedContact': (selectedContact && selectedContact.contactId === contact.contactId), 'errorMsg': contact.hasError}"
+        matRipple matRippleColor="#7cfc0026" *cdkVirtualFor="let contact of contacts"
+        (click)="contactSelected(contact)" (contextmenu)="openContactMenu($event, contact)">
+        <button class="contactAvatar" mat-mini-fab color="{{ contact.contact1 ? 'primary' : 'accent' }}">
+          <mat-icon *ngIf="contact.blockIncoming" matTooltip="Blocked">block</mat-icon>
+          <mat-icon *ngIf="contact.contact1 && !contact.blockIncoming">{{ contact.contact1[0] }}</mat-icon>
+          <mat-icon *ngIf="!contact.contact1 && !contact.blockIncoming">person</mat-icon>
+        </button>
+        <span class="middleContent">
+          <span *ngIf="contact.contact1 || contact.contact2">{{ contact.contact1 }}  {{ contact.contact2 }} <br></span>
+          <span *ngIf="!contact.contact1 && !contact.contact2" matTooltip="Add to contacts" matTooltipPosition="above" class="link"
+            (click)="actOnContact(contact, 'viewContact')">
+            {{ contact.phoneNumber | phone }}
+            <br>
+          </span>
+          <span class="lastMessage" *ngIf="contact.contact1 || contact.contact2">{{ contact.phoneNumber | phone }}<br></span>
+          <span class="lastMessage" *ngIf="userPref && userPref.showLastMessage">{{ contact.lastMessageBody }}<br></span>
+          <span class="tagLine" *ngIf="contact.tags">
+            <mat-icon class="tagIcon">local_offer</mat-icon>
+            {{ contact.tags }}
+            <br></span>
+          <span class="activeUsers" *ngIf="contact.activeUsers && contact.activeUsers.length">
+            <mat-icon class="smallIcon">visibility</mat-icon>
+            <span *ngFor="let user of contact.activeUsers" class="accessUsers">
+              @{{ user.user }}
+            </span>
+            <br>
+          </span>
+          <span class="activeUsers" *ngIf="contact.typingUsers && contact.typingUsers.length">
+            <mat-icon class="smallIcon">more_horiz</mat-icon>
+            <!-- <span class="dot-elastic"></span> -->
+            <span *ngFor="let user of contact.typingUsers" class="accessUsers">
+              @{{ user.user }}
+            </span>
+          </span>
+        </span>
+        <span class="dtContent">
+          <!-- <span>{{ getLatest (contact) | date: 'M/d/yy h:mm a' }}</span><br> -->
+          <span class="dateDisplay">{{ getLatestdate(contact) | timeAgo }}</span><br>
+          <span class="badgeWraper" *ngIf="contact.unreadMessages">
+            <span class="badge">{{ contact.unreadMessages }}</span>
+          </span>
+        </span>
+      </div>
+      <div class="spinnerHolder" *ngIf="loadingContacts">
+        <mat-progress-spinner [color]="'primary'" [mode]="'indeterminate'" [diameter]="25">
+        </mat-progress-spinner>
+      </div>
+      <!-- <div class="spinnerHolder scrollBtn">
+        <button mat-mini-fab color="accent" (click)="scrollToTop()">
+          <mat-icon>arrow_upward</mat-icon>
+        </button>
+      </div> -->
+    </cdk-virtual-scroll-viewport>
+    <div class="resize-handle-right" id="resizeHandle" mwlResizeHandle [resizeEdges]="{ right: true }"></div>
+  </div>
+  <div class="selectContactMessage" *ngIf="(isLarge$ | async) && !selectedContact">
+    <h3>No Conversation Selected</h3> 
+  </div>
+  <div class="rightContainer" [@slideInOut]="(isHandset$ | async)" *ngIf="selectedContact">
+    <div class="actionPanel lightBorder" *ngIf="selectedContact.contactId === -1">
+      <span class="composeChipsBox">
+        <button mat-icon-button *ngIf="(isHandset$ | async)" (click)="selectedContact = null">
+          <mat-icon>arrow_back_ios_new</mat-icon>
+        </button>
+        <mat-form-field class="full-width compactField noLine">
+          <mat-chip-list #chipList aria-label="contact selection">
+            <mat-chip
+              *ngFor="let contact of composeList"
+              (removed)="removeChip(contact)">
+              <mat-icon (click)="expandGroup(contact, $event)" matTooltip="expand group" *ngIf="contact.contactCount" class="btn">
+                add
+              </mat-icon>
+              {{ contact.contact1 || contact.groupName || contact.phoneNumber | phone }} <span *ngIf="contact.contactCount"> {{ contact.contactCount }}</span>
+              <button matChipRemove>
+                <mat-icon>cancel</mat-icon>
+              </button>
+            </mat-chip>
+            <input
+              placeholder="Type name or number (Start with # for Groups)"
+              #composeInput
+              id="composeInput"
+              [formControl]="filterContact"
+              [matAutocomplete]="contactAutoComplete"
+              [matChipInputFor]="chipList"
+              [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+              (matChipInputTokenEnd)="addToComposeList($event)"
+              >
+
+          </mat-chip-list>
+          <mat-autocomplete #contactAutoComplete="matAutocomplete" (optionSelected)="selectedComposeContact($event)">
+            <mat-option *ngFor="let filteredContact of filteredContacts" [value]="filteredContact" 
+              innerHTML="{{ prepContactResult(filteredContact) | highlightText: filterContact.value }}">
+              <!-- {{ filteredContact.contact1 }} -- {{ filteredContact.contact2 }} ({{ filteredContact.phoneNumber | phone }}) -->
+            </mat-option>
+          </mat-autocomplete>
+          <button mat-icon-button matSuffix style="font-size: 1.6em;" (click)="cancelNewMsg()" matTooltip="Cancel">
+            <mat-icon>cancel</mat-icon>
+          </button>
+        </mat-form-field>
+      </span>
+    </div>
+    <div class="actionPanel lightBorder" *ngIf="selectedContact.contactId !== -1">
+      <span style="margin: 8px; text-overflow: ellipsis; white-space: nowrap;">
+        <button mat-icon-button *ngIf="(isHandset$ | async)" (click)="selectedContact = null">
+          <mat-icon>arrow_back_ios_new</mat-icon>
+        </button>
+        <!-- <span *ngIf="selectedContact && (selectedContact.contact1 || selectedContact.contact2)">{{ selectedContact.contact1 }} {{ selectedContact.contact2 }}</span> -->
+        <span *ngIf="selectedContact.contact1 || selectedContact.contact2">{{ selectedContact.contact1 }}  {{ selectedContact.contact2 }}</span>
+        <span *ngIf="!selectedContact.contact1 && !selectedContact.contact2"></span>
+        {{ selectedContact.phoneNumber | phone }}
+      </span>
+      <span>
+        <button mat-icon-button [matMenuTriggerFor]="printMenu" aria-label="Save Conversation" matTooltip="Save Conversation">
+          <mat-icon>download</mat-icon>
+        </button>
+        <button mat-icon-button *ngIf="(isLarge$ | async)" matTooltip="Search Conversation" (click)="openMessageSearch()">
+          <mat-icon>search</mat-icon>
+        </button>
+        <!-- <button mat-icon-button matTooltip="Open Sheduled Messages" (click)="openDraftMessages()">
+          <mat-icon>schedule</mat-icon>
+        </button> -->
+        <button mat-icon-button *ngIf="(isLarge$ | async)" matTooltip="Delete Conversation" (click)="confirmDelete(selectedContact, true)">
+          <mat-icon>delete</mat-icon>
+        </button>
+        <button mat-icon-button *ngIf="(isLarge$ | async)" [color]="showDetaislpanel ? 'primary' : ''" [matTooltip]="showDetaislpanel ? 'Hide Details Panel' : 'Show Details Panel'"
+          (click)="toggleDetailsPane()" style="margin-right: 16px;">
+          <mat-icon style="font-size: 2.5em;" *ngIf="showDetaislpanel">toggle_on</mat-icon>
+          <mat-icon style="font-size: 2.5em;" *ngIf="!showDetaislpanel">toggle_off</mat-icon>
+        </button>
+        <button mat-icon-button *ngIf="!(isLarge$ | async)" [matMenuTriggerFor]="topExtraMenu" #topExtraMenuTrigger>
+          <mat-icon>more_vert</mat-icon>
+        </button>
+      </span>
+    </div>
+    <div class="messagesHolder">
+      <div class="messages">
+        <div class="spinnerHolder" *ngIf="loadingMessages">
+          <mat-progress-spinner [color]="'primary'" [mode]="'indeterminate'" [diameter]="25">
+          </mat-progress-spinner>
+        </div>
+        <!-- <div class="messagesList"> -->
+        <cdk-virtual-scroll-viewport #messageScroller class="messagesList" appendOnly [itemSize]="50" (click)="showEmojiList = false;">
+          <div class="msgContainer" [ngClass]="{'indent': message.direction === 'out', 'scheduledMsg': message.scheduleDt}" *cdkVirtualFor="let message of messages;" (contextmenu)="openMessageMenu($event, message)">
+            <div *ngIf="!message.isDeleted" style="display: flex; flex-direction: column;"
+              [ngClass]="{'outMsg': message.direction === 'out', 'inMsg': message.direction === 'in', 'unRead': (!message.isRead && message.direction === 'in'), 'errorMsg': message.transmissionState === 'error'}">
+              <span *ngIf="message.attachments && message.attachments.length">
+                <span *ngFor="let attachment of message.attachments; let i = index;">
+                  <img class="messageImg" *ngIf="attachment.mimeType.indexOf('image') > -1"
+                    (click)="openImage(message, i)" [src]="attachment.thumbnailUrl"
+                    alt="{{ attachment.fileName }}">
+                </span>
+              </span>
+              <span [innerText]="message.messageBody">
+                <!-- {{ message.messageBody }} -->
+              </span>
+            </div>
+            <div *ngIf="!message.isDeleted" class="msgMetaHint">
+              <!-- <span>{{ message.deliveredDate | date:'MMM d, Y h:mm a'}}</span> -->
+              <span *ngIf="message.direction !== 'in' && message.userName">{{ (loggedInUser && loggedInUser.id === message.userid) ? 'You' : message.userName }}</span>
+              <span>{{ message.createdDate | date:'M/d/yy h:mm a'}}</span>
+              <span *ngIf="message.direction !== 'in'">{{ message.transmissionState }}</span>
+              <span *ngIf="displayAsScheduled(message)"> scheduled for: {{ message.scheduleDt | date:'M/d/yy h:mm a' }}</span>
+              <!-- <span *ngIf="message.isRead">Read</span> -->
+              <!-- <mat-icon style="color: green;" *ngIf="message.isRead">done_all</mat-icon> -->
+              <!-- <span *ngIf="!message.isRead">{{ message.transmissionState }}</span> -->
+            </div>
+          </div>
+        </cdk-virtual-scroll-viewport>
+        <!-- </div> -->
+        <div class="composeBox">
+          <div class="composeContainer">
+            <div class="inputArea">
+              <div class="attachmentHolder">
+                <input style="display: none;" type="file" accept="image/*" #fileSelector id="fileSelector"
+                  (change)="fileSelected($event)">
+                <span class="imgPreviewHolder" *ngIf="composedMessage && composedMessage.attachments.length">
+                  <span class="imagewrap" *ngFor="let file of composedMessage.attachments">
+                    <img class="attachmentImage" [src]="getPreview(file)" alt="attachment">
+                    <mat-icon class="removeImg" (click)="removeAttachement(file)">cancel</mat-icon>
+                  </span>
+                </span>
+
+                <span class="imgPreviewHolder" *ngIf="composedMessage && composedMessage.urls.length">
+                  <span class="imagewrap" *ngFor="let file of composedMessage.urls">
+                    <img class="attachmentImage" [src]="file.thumbnailUrl" alt="attachment">
+                    <mat-icon class="removeImg" (click)="removeAttachementUrl(file)">cancel</mat-icon>
+                  </span>
+                </span>
+
+              </div>
+              <div>
+                <mat-form-field appearance="outline" class="full-width">
+                  <textarea
+                    matInput
+                    id="msgBox"
+                    cdkTextareaAutosize
+                    #autosize="cdkTextareaAutosize"
+                    cdkAutosizeMinRows="1"
+                    cdkAutosizeMaxRows="5"
+                    placeholder="Type a message"
+                    (paste)="onPaste($event)"
+                    [(ngModel)]="outGoingMsg.message"
+                    (ngModelChange)="charCount(outGoingMsg.message)"
+                    (keyup)="activateIndicator($event)"
+                    (keydown)="checkSend($event)"
+                    (click)="messageBoxClicked()"
+                  ></textarea>
+                  <mat-hint class="spacedApart">
+                    <span>
+                      {{ msgLmits.cnt }} / 600
+                      <span [ngClass]="(msgLmits.cnt > 600) ? 'errMsg' : 'warnMsg'" *ngIf="msgLmits.msg">
+                        {{ msgLmits.msg }}
+                      </span>
+                    </span>
+                    <span *ngIf="outGoingMsg.scheduleDt">
+                      <span (click)="dtPicker.open();">
+                        {{ outGoingMsg.scheduleDt | date:'MMM d, Y h:mm a' }}
+                      </span>
+                      <span class="bigClose" (click)="outGoingMsg.scheduleDt = ''">
+                        <mat-icon>close</mat-icon>
+                      </span>
+                    </span>
+                  </mat-hint>
+                </mat-form-field>
+              </div>
+            </div>
+            <div class="actionPanel">
+              <span>
+                <button mat-icon-button 
+                  *ngIf="(isLarge$ | async)"
+                  [color]="(selectedContact && selectedContact.unreadMessages) ? 'primary' : ''"
+                  matTooltip="Mark All Read" (click)="actOnContact(selectedContact, 'read')">
+                  <mat-icon>mark_chat_read</mat-icon>
+                </button>
+                <button mat-icon-button matTooltip="Refresh Messages" (click)="reloadMessages(selectedContact)">
+                  <mat-icon>autorenew</mat-icon>
+                </button>
+                <span matTooltip="{{ selectedAccountPhone.canSendMMS? 'Select Image' : 'No access to MMS' }}">
+                  <button mat-icon-button
+                    disabled="{{ !selectedAccountPhone.canSendMMS || (selectedAccountPhone.providerId === 2 && composedMessage.attachments.length > 0) }}" (click)="fileSelector.click()">
+                    <mat-icon>image</mat-icon>
+                  </button>
+                </span>
+                <button mat-icon-button matTooltip="Templates" (click)="templateOpened()" [matMenuTriggerFor]="templateMenu" #templateMenuTrigger>
+                  <mat-icon>content_paste</mat-icon>
+                </button>
+                <button mat-icon-button
+                  *ngIf="(isLarge$ | async)"
+                  matTooltip="{{ (userPref && userPref.signatureOn) ? 'Signature Off' : 'Signature On' }}"
+                  [color]="(userPref && userPref.signatureOn) ? 'primary': 'none'"
+                  (click)="toggleSignature()" (contextmenu)="openSettings($event)">
+                  <mat-icon>draw</mat-icon>
+                </button>
+                <button mat-icon-button
+                  *ngIf="(isLarge$ | async)"
+                  matTooltip="Emoji"
+                  (click)="toggleEmojiLIst($event)">
+                  <mat-icon>emoji_emotions</mat-icon>
+                </button>
+                <emoji-mart title="Pick your emoji…" [sheetSize]="32" [backgroundImageFn]="backgroundImageFn" *ngIf="showEmojiList" (emojiClick)="addEmoji($event)" emoji="point_up"></emoji-mart>
+                <!-- <button mat-icon-button matTooltip="Dynamic Fields (Work In progress)" *ngIf="(isLarge$ | async)">
+                  <mat-icon>smart_button</mat-icon>
+                </button> -->
+                <button mat-icon-button *ngIf="(isHandset$ | async)" [matMenuTriggerFor]="composeMenu" #composeMenuTrigger matTooltip="More"
+                  matTooltipClass="roundedTooltip">
+                  <mat-icon>more_vert</mat-icon>
+                </button>
+              </span>
+              <span>
+                <button mat-icon-button (click)="dtPicker.open();" matTooltip="Schedule Message">
+                  <mat-icon>more_time</mat-icon>
+                </button>
+                <mat-form-field style="display: none;">
+                  <input matInput [ngxMatDatetimePicker]="dtPicker" placeholder="Date and Time" [(ngModel)]="outGoingMsg.scheduleDt">
+                  <ngx-mat-datetime-picker #dtPicker [showSeconds]="true" [enableMeridian]="true" [touchUi]="true" color="primary">
+                  </ngx-mat-datetime-picker>
+                </mat-form-field>
+                <span matTooltip="{{ selectedAccountPhone.canReply ? '' : 'No permission to reply' }}">
+                  <button mat-flat-button color="primary" [disabled]="disableSend()" class="roundedBtn" (click)="prepMessage()">
+                     {{ outGoingMsg.scheduleDt? 'Schedule' : 'Send' }}
+                    <mat-icon>send</mat-icon>
+                  </button>
+                </span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="meta" *ngIf="(isLarge$ | async) && showDetaislpanel" (click)="showEmojiList = false;">
+        <mat-tab-group *ngIf="selectedContact && selectedContact.contactId !== -1">
+          <mat-tab label="Contact">
+            <div class="contactDisplay">
+              <span class="contactGrp">
+                <span class="actionPanel">
+                  <h4>Contact details</h4>
+                  <button mat-icon-button color="primary" matTooltip="Edit" matTooltipClass="roundedTooltip"
+                   (click)="actOnContact(selectedContact, 'viewContact')">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                </span><br>
+                <span class="namePlate">Contact1: </span>
+                <span>
+                  {{ selectedContact.contact1 }}
+                </span>
+              </span>
+              <span class="contactGrp">
+                <span class="namePlate">Contact2: </span>
+                <span>
+                  {{ selectedContact.contact2 }}
+                </span>
+              </span>
+              <span class="contactGrp">
+                <span class="namePlate">Phone: </span>
+                <span>
+                  {{ selectedContact.phoneNumber | phone }}
+                </span>
+              </span>
+              <span *ngIf="selectedContact.groups && selectedContact.groups.length">
+                <span class="namePlate">Groups: </span><br>
+                <ng-container style="margin-left: 16px;" *ngFor="let group of selectedContact.groups.split('#')">
+                  <span *ngIf="group">
+                    #{{ group }},
+                  </span>
+                </ng-container>
+              </span>
+              <span class="contactGrp">
+                <span class="namePlate">Notes: </span>
+                <mat-form-field appearance="outline">
+                  <textarea matInput placeholder="Notes" cdkTextareaAutosize
+                    cdkAutosizeMinRows="1" cdkAutosizeMaxRows="8"
+                    [(ngModel)]="selectedContact.notes"
+                    (keydown)="checkNoteKeys($event, selectedContact)"></textarea>
+                </mat-form-field>
+                <span>
+                  <button mat-flat-button color="primary" matTooltip="CTRL/CMD + Enter"
+                    *ngIf="oldNote !== selectedContact.notes"
+                    (click)="saveNote(selectedContact)">
+                    Save
+                  </button>
+                </span>
+              </span>
+            </div>
+          </mat-tab>
+          <mat-tab label="" disabled>
+
+          </mat-tab>
+        </mat-tab-group>
+        <div *ngIf="selectedContact && selectedContact.contactId === -1">
+          <h3>Selected Contacts</h3>
+          <!-- <mat-form-field class="full-width" *ngIf="composeList && composeList.length > 1">
+            <input type="text" placeholder="Name as a group" matInput>
+          </mat-form-field> -->
+          <div *ngFor="let contact of composeList" class="contactGrp">
+            <ng-container *ngIf="contact.contactId || contact.contactId === 0">
+              <div>
+                {{ contact.contact1 }}
+              </div>
+              <div>
+                {{ contact.phoneNumber | phone }}
+              </div>
+            </ng-container>
+            <ng-container *ngIf="contact.id || contact.id === 0">
+              <div>
+                {{ contact.groupName }}
+              </div>
+              <div>
+                {{ contact.contactCount }}
+              </div>
+            </ng-container>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="visibility: hidden; position: fixed;"
+    [style.left]="contactMenuPosition.x"
+    [style.top]="contactMenuPosition.y"
+    [matMenuTriggerFor]="contactMenu"
+    #contactMenuTrigger
+    [matMenuTriggerData]="contextContact">
+</div>
+
+<mat-menu #contactMenu="matMenu">
+  <ng-template matMenuContent let-contact="contact">
+    <button mat-menu-item (click)="actOnContact(contact, 'read')">
+      <mat-icon>mark_chat_read</mat-icon>
+      Mark as Read
+    </button>
+    <span mat-menu-item matTooltip="{{ selectedAccountPhone.canDeleteConversation? '' : 'No permission to delete conversation' }}">
+      <button mat-button color="warn" disabled="{{ !selectedAccountPhone.canDeleteConversation }}" (click)="actOnContact(contact, 'delete')">
+        <mat-icon color="warn">delete</mat-icon>
+        Delete
+      </button>
+    </span>
+    <button mat-menu-item (click)="actOnContact(contact, 'block')">
+      <span *ngIf="!contact.blockIncoming">
+        <mat-icon>block</mat-icon>
+        Block number
+      </span>
+      <span *ngIf="contact.blockIncoming">
+        <mat-icon>do_disturb_off</mat-icon>
+        Un-block number
+      </span>
+    </button>
+    <button mat-menu-item (click)="actOnContact(contact, 'copyNumber')">
+      <mat-icon>content_copy</mat-icon>
+      Copy Number
+    </button>
+    <button mat-menu-item (click)="actOnContact(contact, 'viewContact')">
+      <mat-icon>person</mat-icon>
+      View/Edit Contact
+    </button>
+    <button mat-menu-item (click)="actOnContact(contact, 'TagList')">
+      <mat-icon>local_offer</mat-icon>
+      Tags
+    </button>
+  </ng-template>
+</mat-menu>
+
+
+<div style="visibility: hidden; position: fixed;"
+    [style.left]="messageMenuPosition.x"
+    [style.top]="messageMenuPosition.y"
+    [matMenuTriggerFor]="messageMenu"
+    #messageMenuTrigger
+    [matMenuTriggerData]="contextMessage">
+</div>
+
+<mat-menu #messageMenu="matMenu">
+  <ng-template matMenuContent let-message="message">
+    <button mat-menu-item (click)="actOnMessage(message, 'read')">
+      <span *ngIf="!message.isRead">
+        <mat-icon>mark_chat_read</mat-icon>
+        Mark as Read
+      </span>
+      <span *ngIf="message.isRead">
+        <mat-icon>mark_chat_unread</mat-icon>
+        Mark as Unread
+      </span>
+    </button>
+    <span mat-menu-item matTooltip="{{ selectedAccountPhone.canDeleteMessage? '' : 'No permission to delete message' }}">
+      <button mat-button color="warn" disabled="{{ !selectedAccountPhone.canDeleteMessage }}" (click)="actOnMessage(message, 'delete')">
+        <mat-icon color="warn">delete</mat-icon>
+        Delete
+      </button>
+    </span>
+    <button mat-menu-item (click)="actOnMessage(message, 'forward')">
+      <mat-icon>shortcut</mat-icon>
+      Forward
+    </button>
+    <button mat-menu-item (click)="actOnMessage(message, 'copyMessage')">
+      <mat-icon>content_copy</mat-icon>
+      Copy Message
+    </button>
+  </ng-template>
+</mat-menu>
+
+<mat-menu #composeMenu="matMenu">
+  <ng-template matMenuContent>
+    <!-- <button mat-menu-item (click)="reloadMessages(selectedContact)">
+      <mat-icon>autorenew</mat-icon>
+      Refresh messages
+    </button> -->
+    <button mat-menu-item (click)="actOnContact(selectedContact, 'read')">
+      <mat-icon>mark_chat_read</mat-icon>
+      Mark all as read
+    </button>
+    <button mat-menu-item (click)="toggleSignature()">
+      <mat-icon>draw</mat-icon>
+      {{ (userPref && userPref.signatureOn) ? 'Signature off' : 'Signature on' }}
+    </button>
+    <button mat-menu-item (click)="openSettings()">
+      <mat-icon>draw</mat-icon>
+      Edit signature
+    </button>
+  </ng-template>
+</mat-menu>
+
+<mat-menu #topExtraMenu="matMenu">
+  <ng-template matMenuContent>
+    <button mat-menu-item (click)="openMessageSearch()">
+      <mat-icon>search</mat-icon>
+      Search
+    </button>
+    <button mat-menu-item (click)="confirmDelete(selectedContact, true)">
+      <mat-icon>delete</mat-icon>
+      Delete
+    </button>
+  </ng-template>
+</mat-menu>
+
+<mat-menu #signatureTemplate="matMenu">
+  <ng-template matMenuContent>
+    <label mat-menu-item>Add Signature</label>
+    <mat-form-field appearance="outline" class="full-width" (click)="$event.stopPropagation();">
+      <textarea type="text"
+        matInput
+        [(ngModel)]="signatureCopy"
+        cdkTextareaAutosize
+        #signatureAutoSize="cdkTextareaAutosize"
+        placeholder="Signature"
+        cdkAutosizeMinRows="1"
+        cdkAutosizeMaxRows="5"
+        (click)="$event.stopPropagation();"
+        (keydown)="updateSignature($event)"
+        >
+      </textarea>
+      <!-- <mat-hint *ngIf="userPref && userPref.signature">{{ userPref.signature.length }}</mat-hint> -->
+    </mat-form-field>
+  </ng-template>
+</mat-menu>
+
+<mat-menu #templateMenu="matMenu">
+  <ng-template matMenuContent>
+    <div class="templateHolder searchOption">
+      <input class="full-width"
+        (click)="$event.stopPropagation()"
+        type="text" placeholder="Search"
+        [formControl]="searchTemplates">
+      <div class="templateLink" routerLink="/templates">
+        Manage templates
+      </div>
+    </div>
+    <div class="templateHolder" *ngIf="filteredTemplates && !filteredTemplates.length">
+      No Templates found
+    </div>
+    <div class="templateHolder" *ngFor="let template of filteredTemplates" (click)="templateSelected(template)">
+      <div class="templateHeader truncatedText">
+        {{ template.templateName }}
+      </div>
+      <div class="templateBody truncatedText" [matTooltip]="template.templateText">
+        {{ template.templateText }}
+      </div>
+    </div>
+  </ng-template>
+</mat-menu>
+
+<mat-menu #printMenu="matMenu">
+  <div mat-menu-item disabled>
+    Save Conversation
+  </div>
+  <div mat-menu-item>
+    <mat-form-field>
+      <input matInput style="display: none;" [ngxMatDatetimePicker]="frmDtPicker" placeholder="From date" (ngModelChange)="displayDates()" [(ngModel)]="printOptions.frmDt"
+        (click)="$event.stopPropagation();">
+      <input matInput type="text" (click)="$event.stopPropagation(); frmDtPicker.open();" placeholder="From date" [(ngModel)]="printOptions.startDate">
+      <mat-icon matSuffix (click)="$event.stopPropagation(); frmDtPicker.open();">calendar_month</mat-icon>
+      <ngx-mat-datetime-picker #frmDtPicker [defaultTime]="[0, 0, 0]" [hideTime]="true" [touchUi]="false" color="primary">
+      </ngx-mat-datetime-picker>
+    </mat-form-field>
+  </div>
+  <div mat-menu-item>
+    <mat-form-field>
+      <input matInput style="display: none;" [ngxMatDatetimePicker]="toDtPicker" (ngModelChange)="displayDates()" placeholder="To Date" [(ngModel)]="printOptions.toDt" 
+        (click)="$event.stopPropagation();">
+      <input matInput type="text" (click)="$event.stopPropagation(); toDtPicker.open();" placeholder="To Date" [(ngModel)]="printOptions.endDate">
+      <mat-icon matSuffix (click)="$event.stopPropagation(); toDtPicker.open();">calendar_month</mat-icon>
+      <ngx-mat-datetime-picker #toDtPicker [defaultTime]="[0, 0, 0]" [hideTime]="true" [touchUi]="false" color="primary">
+      </ngx-mat-datetime-picker>
+    </mat-form-field>
+  </div>
+  <div mat-menu-item>
+    <mat-radio-group class="printRadioGrp" [(ngModel)]="printOptions.saveType" (click)="$event.stopPropagation();">
+      <mat-radio-button value="csv">CSV</mat-radio-button>
+      <mat-radio-button value="pdf">PDF</mat-radio-button>
+    </mat-radio-group>
+  </div>
+  <div mat-menu-item>
+    <button mat-flat-button color="primary" (click)="downloadConversation()">Save</button>
+  </div>
+</mat-menu>

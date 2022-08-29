@@ -1,0 +1,152 @@
+<div class="container">
+  <span>
+    <button *ngIf="(isSmall$ | async)" type="button" aria-label="Toggle sidenav" mat-icon-button (click)="toggleSideNav($event)">
+      <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
+    </button>
+    <mat-form-field class="compactField">
+      <mat-label>Account phone</mat-label>
+      <mat-select #accPhoneSelect [(ngModel)]="selectedAccountPhone" (selectionChange)="accPhoneChanged()">
+        <mat-option disabled class="searchOption">
+          <mat-form-field>
+            <input type="text" placeholder="search" matInput [formControl]="searchAccPhone" (click)="$event.stopPropagation();$event.preventDefault();">
+          </mat-form-field>
+        </mat-option>
+        <mat-option *ngFor="let accPhone of filteredAccPhones; trackBy: getId" [value]="accPhone">
+          {{ accPhone.accountPhone | phone }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </span>
+  
+  <mat-tab-group mat-align-tabs="start" (selectedTabChange)="tabChanged($event)">
+    <mat-tab label="Contacts">
+      <div class="edgeSpaceEle">
+        <span>
+          <mat-form-field>
+            <input type="text" matInput placeholder="Search" appearance="outline" [formControl]="searchContacts">
+          </mat-form-field>
+          <!-- <mat-form-field class="compactField">
+            <mat-select [(ngModel)]="page.sort">
+              <mat-option value="contact1">Contact1</mat-option>
+              <mat-option value="contact2">Contact2</mat-option>
+              <mat-option value="phoneNumber">Phone Number</mat-option>
+            </mat-select>
+          </mat-form-field> -->
+        </span>
+        <span class="evenSpaced">
+          <button mat-flat-button color="primary" (click)="exportContacts()">
+            {{ (isSmall$ | async) ? '' : 'Export' }}
+            <mat-icon>file_download</mat-icon>
+          </button>
+          <!-- <button mat-flat-button color="primary">
+            {{ (isSmall$ | async) ? '' : 'Import' }}
+            <mat-icon>file_upload</mat-icon>
+          </button> -->
+          <button mat-flat-button color="accent" (click)="openContact()">
+            {{ (isSmall$ | async) ? '' : 'Add Contact' }}
+            <mat-icon>add</mat-icon>
+          </button>
+        </span>
+      </div>
+      <div class="headerRow" matSort (matSortChange)="sortContacts($event)">
+        <div class="headerColumn" mat-sort-header="contact1">Contact1</div>
+        <div class="headerColumn" mat-sort-header="contact2">Contact2</div>
+        <div class="headerColumn" mat-sort-header="blockIncoming">Incoming Blocked</div>
+        <div *ngIf="(isLarge$ | async)" class="headerColumn" mat-sort-header="phoneNumber">Phone Number</div>
+      </div>
+      <cdk-virtual-scroll-viewport #contactScroller class="contactsList" [itemSize]="75">
+        <div class="contactRow" *cdkVirtualFor="let contact of contacts" (click)="openContact(contact)" (contextmenu)="openContactMenu($event, contact)">
+          <div class="nameClmn column edgeSpaceEle">
+            <!-- <span *ngIf="(isSmall$ | async)">
+              <mat-icon>arrow_forward_ios</mat-icon>
+            </span> -->
+            <span>{{ contact.contact1 }}</span>
+          </div>
+          <div class="nameClmn column">
+            <span>{{ contact.contact2 }}</span>
+          </div>
+          <div class="nameClmn column">
+            <span>{{ contact.blockIncoming }}</span>
+          </div>
+          <div class="numberClmn column" *ngIf="(isLarge$ | async)">
+            {{ contact.phoneNumber | phone }}
+          </div>
+        </div>
+        <div class="spinnerHolder" *ngIf="loadingContacts">
+          <mat-progress-spinner [color]="'primary'" [mode]="'indeterminate'" [diameter]="25">
+          </mat-progress-spinner>
+        </div>
+      </cdk-virtual-scroll-viewport>
+    </mat-tab>
+    <mat-tab label="Groups">
+      <div class="edgeSpaceEle">
+        <mat-form-field>
+          <input type="text" matInput placeholder="Search" appearance="outline" [formControl]="searchGroups">
+        </mat-form-field>
+        <span>
+          <button color="primary" mat-flat-button (click)="openGroup()">
+            Add group
+            <mat-icon>add</mat-icon>
+          </button>
+        </span>
+      </div>
+      <div class="grpsLIst">
+        <div class="headerRow" matSort (matSortChange)="sortGroups($event)">
+          <div class="headerColumn" mat-sort-header="groupName">Group name</div>
+          <div class="headerColumn" mat-sort-header="contactCount">Members count</div>
+          <div class="headerColumn">Action</div>
+        </div>
+        <div>
+          <div class="contactRow" *ngFor="let group of filteredGroups" (click)="openGroup(group)">
+            <div class="nameClmn column edgeSpaceEle">
+              <span>{{ group.groupName }}</span>
+            </div>
+            <div class="nameClmn column">
+              <span>{{ group.contactCount }}</span>
+            </div>
+            <div class="nameClmn column">
+              <button mat-icon-button color="warn" (click)="deleteGroup(group)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+</div>
+
+<div style="visibility: hidden; position: fixed;"
+    [style.left]="contactMenuPosition.x"
+    [style.top]="contactMenuPosition.y"
+    [matMenuTriggerFor]="contactMenu"
+    #contactMenuTrigger
+    [matMenuTriggerData]="contextContact">
+</div>
+
+<mat-menu #contactMenu="matMenu">
+  <ng-template matMenuContent let-contact="contact">
+    <button mat-menu-item (click)="actOnContact(contact, 'delete')">
+      <mat-icon>delete</mat-icon>
+      Delete
+    </button>
+    <button mat-menu-item (click)="actOnContact(contact, 'block')">
+      <span *ngIf="!contact.blockIncoming">
+        <mat-icon>block</mat-icon>
+        Block number
+      </span>
+      <span *ngIf="contact.blockIncoming">
+        <mat-icon>do_disturb_off</mat-icon>
+        Un-block number
+      </span>
+    </button>
+    <button mat-menu-item (click)="actOnContact(contact, 'copyNumber')">
+      <mat-icon>content_copy</mat-icon>
+      Copy number
+    </button>
+    <button mat-menu-item (click)="actOnContact(contact, 'viewContact')">
+      <mat-icon>person</mat-icon>
+      View/Edit contact
+    </button>
+  </ng-template>
+</mat-menu>

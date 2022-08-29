@@ -1,0 +1,17 @@
+.container {
+  min-width: 40vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: scroll;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+}
+
+.spacedEles > * {
+  margin-right: 8px;
+  margin-left: 8px;
+}

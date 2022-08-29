@@ -1,0 +1,46 @@
+<h1 mat-dialog-title>{{ data.title }}</h1>
+<div mat-dialog-content>
+  <div class="container">
+    <div class="userInput">
+      <mat-form-field>
+        <input type="text" matInput placeholder="Group name" [(ngModel)]="group.name" disabled="{{group.id? true : false}}">
+        <mat-hint *ngIf="group.name && group.name.indexOf(' ') > -1" class="error">Space not allowed</mat-hint>
+      </mat-form-field>
+      <mat-form-field class="full-width">
+        <mat-chip-list #chipList aria-label="contact selection">
+          <mat-chip *ngFor="let contact of composeList" (removed)="remove(contact)">
+            {{ contact.contact1 || contact.phoneNumber | phone }}
+            <button matChipRemove>
+              <mat-icon>cancel</mat-icon>
+            </button>
+          </mat-chip>
+          <input placeholder="Type name or number" #composeInput id="composeInput" [formControl]="filterContact"
+            [matAutocomplete]="contactAutoComplete" [matChipInputFor]="chipList"
+            (matChipInputTokenEnd)="addToComposeList($event)">
+
+        </mat-chip-list>
+        <mat-autocomplete #contactAutoComplete="matAutocomplete" (optionSelected)="selectedComposeContact($event)">
+          <mat-option *ngFor="let filteredContact of filteredContacts" [value]="filteredContact"
+            innerHTML="{{ prepContactResult(filteredContact) | highlightText: filterContact.value }}">
+          </mat-option>
+        </mat-autocomplete>
+      </mat-form-field>
+    </div>
+    <div>
+      <h2>Current Group Members ({{ group.contacts.length }})</h2>
+      <div class="listItem" *ngFor="let contact of group.contacts">
+        <span>{{ contact.contact1 }}, {{ contact.contact2 }} ({{ contact.phoneNumber | phone }})</span>
+        <span style="cursor: pointer;" matTooltip="remove" (click)="removeFromGroup(contact)">
+          <mat-icon>
+            close
+          </mat-icon>
+        </span>
+      </div>
+    </div>
+
+  </div>
+</div>
+<div mat-dialog-actions>
+  <button mat-flat-button [color]="'accent'" [mat-dialog-close]="false">Close</button>
+  <button mat-flat-button color="primary" (click)="saveGroup()">Save</button>
+</div>

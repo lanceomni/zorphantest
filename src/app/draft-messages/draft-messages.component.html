@@ -1,0 +1,45 @@
+<h1 mat-dialog-title>{{data.title}}</h1>
+<div mat-dialog-content>
+  <div class="spinnerHolder" *ngIf="loading">
+    <mat-progress-spinner [color]="'primary'" [mode]="'indeterminate'" [diameter]="25">
+    </mat-progress-spinner>
+  </div>
+  <div class="spinnerHolder" *ngIf="!loading && !drafts.length">
+    No scheduled messages
+  </div>
+  <div *ngIf="drafts && drafts.length">
+    <div *ngFor="let draft of drafts">
+      <div class="msg">
+        {{ draft.messageBody }}
+      </div>
+      <div class="msgMetaHint">
+        <span *ngIf="draft.phoneNumbers">
+          scheduled for: ({{ draft.phoneNumbers.length }}) <span class="anchor" (click)="toggleContacts(draft)">contacts</span>, &nbsp;
+        </span>
+        <span>
+          {{ draft.scheduledDate | date:'M/d/yy h:mm a' }}
+        </span>
+      </div>
+      <div *ngIf="draft.showContacts" class="verticalSpacing">
+        <span *ngFor="let contact of draft.phoneNumbers" class="horzontalSpacing numberHolder">
+          {{ contact.contact1 || contact.contact2 }} -
+          ({{ contact.phoneNumber | phone }})
+        </span> &nbsp;
+        <span *ngIf="draft.groups && draft.groups.length">
+          <span *ngFor="let group of draft.groups" class="horzontalSpacing numberHolder">
+            #{{ group.groupName }}
+          </span> &nbsp;
+        </span>
+      </div>
+      <div class="verticalSpacing grpEles">
+        <button mat-flat-button color="primary" (click)="editDraft(draft)">Edit</button>
+        <button mat-flat-button style="background-color: #e87d75;" (click)="deleteDraft(draft)">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div mat-dialog-actions>
+  <span>
+    <button mat-flat-button color="accent" [mat-dialog-close]="false">Close</button>
+  </span>
+</div>

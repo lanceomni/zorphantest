@@ -1,0 +1,21 @@
+.userInput {
+  display: flex;
+}
+
+.userInput > * {
+  margin-left: 8px;
+  margin-right: 8px;
+}
+
+.listItem {
+  display: flex;
+  justify-content: space-between;
+  max-width: 60%;
+  margin: auto;
+  font-size: 1.2em;
+  margin-bottom: 16px;
+}
+
+.error {
+  color: #ff0000;
+}

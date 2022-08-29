@@ -1,0 +1,79 @@
+.container {
+  height: 100vh;
+  margin: 0px 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.dash {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+}
+
+.eachStat {
+  border: 1px solid grey;
+}
+
+.contactsList {
+  height: calc(100vh - 250px);
+  overflow-y: scroll;
+}
+
+.contactRow {
+  display: flex;
+  flex-direction: row;
+  padding: 16px 0px;
+}
+
+.headerRow {
+  display: flex;
+  flex-direction: row;
+  padding: 16px 0px;
+  // font-size: large;
+  font-weight: 700;
+  color: var(--primary);
+  border-bottom: 0.1px solid var(--primary);
+}
+
+.headerColumn {
+  margin: 0px 16px;
+  flex: 1;
+}
+
+.spinnerHolder {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.contactRow:hover {
+  // background-color: rgb(218, 214, 214);
+  border: 1px solid;
+  border-radius: 5px;
+  border-color: var(--accent);
+  cursor: pointer;
+}
+
+.column {
+  margin: 0px 16px;
+  flex: 1;
+}
+
+.edgeSpaceEle {
+  display: flex;
+  justify-content: space-between;
+}
+
+.evenSpaced > * {
+  margin-left: 8px;
+  margin-right: 8px;
+}
+
+.searchOption {
+  margin-top: 2em;
+  position: sticky;
+  z-index: 1;
+  top: 0;
+  background-color: white;
+}

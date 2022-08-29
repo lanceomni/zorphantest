@@ -1,0 +1,19 @@
+<h1 mat-dialog-title>{{data.title}}</h1>
+<div mat-dialog-content>
+  <div *ngIf="data.message" [innerHtml]="data.message | safeHtml">
+  </div>
+  <div *ngIf="data.inputName" style="min-height: 100px;">
+    <mat-form-field appearance="fill" class="full-width">
+      <mat-label>{{ data.inputName }}</mat-label>
+      <input type="text" matInput [(ngModel)]="inputVal">
+      <mat-hint>{{ data.inputHint }}</mat-hint>
+    </mat-form-field>
+  </div>
+</div>
+<div mat-dialog-actions>
+  <span>
+    <button mat-flat-button color="accent" (click)="close(false)">{{ data.cancelLable? data.cancelLable :'No' }}</button>
+    <button mat-flat-button color="primary" (click)="close(true)" cdkFocusInitial>{{ data.successLabel? data.successLabel : 'Yes' }}</button>
+    <button mat-flat-button color="primary" *ngIf="data.showSave" (click)="save()">Save & Close</button>
+  </span>
+</div>

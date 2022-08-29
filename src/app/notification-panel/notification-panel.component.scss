@@ -1,0 +1,55 @@
+.container {
+  overflow: scroll;
+}
+
+.inMsg {
+  border: 1px solid #edeff2;
+  padding: 8px;
+  background-color: var(--primary_light);
+  margin-right: 2em;
+  word-break: break-word;
+}
+
+.msgContainer {
+  padding: 4px 8px;
+  border-radius: 5px;
+}
+
+.msgHint {
+  font-size: 0.7em;
+  color: #808080;
+}
+
+.outMsg {
+  padding: 8px;
+  background-color: #eff0f1;
+  word-break: break-word;
+  white-space: pre-line;
+}
+
+.unRead {
+  background-color: var(--primary);
+  border: 1px solid var(--primary);
+  color: #f5f5f5;
+}
+
+.indent {
+  margin-left: 4em;
+}
+
+.toLable {
+  border: 0.1px solid var(--primary);
+  width: fit-content;
+  padding: 5px;
+  border-radius: 5px;
+  background-color: var(--primary);
+  color: #f5f5f5;
+}
+
+.fromLable {
+  border: 0.1px solid var(--accent);
+  width: fit-content;
+  padding: 5px;
+  border-radius: 5px;
+  background-color: var(--accent);
+}

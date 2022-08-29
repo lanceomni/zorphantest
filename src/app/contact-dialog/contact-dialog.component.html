@@ -1,0 +1,62 @@
+<h1 mat-dialog-title>{{ data.title }}</h1>
+<div mat-dialog-content>
+  <div class="container">
+    <form [formGroup]="contactForm" class="form" (ngSubmit)="saveContact(contactForm)">
+      <span>
+        <mat-form-field appearance="outline">
+          <mat-label>Contact1</mat-label>
+          <input matInput placeholder="Name" formControlName="contact1">
+        </mat-form-field>
+      </span>
+      <span>
+        <mat-form-field appearance="outline">
+          <mat-label>Contact2</mat-label>
+          <input matInput placeholder="Name" formControlName="contact2">
+        </mat-form-field>
+      </span>
+      <span>
+        <mat-form-field appearance="outline">
+          <mat-label>Phone</mat-label>
+          <input matInput placeholder="Phone" formControlName="phoneNumber">
+          <mat-error *ngIf="contactForm.get('phoneNumber')?.hasError('required')">
+            Required
+          </mat-error>
+          <mat-error *ngIf="contactForm.get('phoneNumber')?.hasError('invalidPhone')">
+            Invalid phone number
+          </mat-error>  
+        </mat-form-field>
+      </span>
+      <span *ngIf="data.contact && data.contact.contactId">
+        <mat-form-field appearance="outline">
+          <mat-label>Change Phone Number</mat-label>
+          <input matInput placeholder="New phone" formControlName="newContactPhone">
+          <mat-error *ngIf="contactForm.get('newContactPhone')?.hasError('invalidPhone')">
+            Invalid phone number
+          </mat-error>
+        </mat-form-field>
+      </span>
+      <span>
+        <mat-form-field appearance="outline">
+          <mat-label>Notes</mat-label>
+          <textarea matInput placeholder="Notes" formControlName="notes" cols="20" rows="10"></textarea>
+        </mat-form-field>
+      </span>
+      <span *ngIf="allGroups && allGroups.length">
+        <mat-form-field appearance="outline">
+          <mat-label>Groups</mat-label>
+          <mat-select multiple formControlName="groupIds">
+            <mat-option *ngFor="let group of allGroups" [value]="group.id">{{group.groupName}}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </span>
+    </form>
+  </div>
+</div>
+<div mat-dialog-actions class="spacedEles">
+<button mat-flat-button [color]="'accent'" [mat-dialog-close]="false">Close</button>
+<span [matTooltip]="(!data.selectedAccountPhone || !data.selectedAccountPhone.canUpdateContact)? 'No permission to update contact' : ''">
+  <button mat-flat-button color="primary"
+    disabled="{{ !contactForm.valid ||(!data.selectedAccountPhone || !data.selectedAccountPhone.canUpdateContact) }}"
+    (click)="saveContact(contactForm)">Save</button>
+  </span>
+</div>

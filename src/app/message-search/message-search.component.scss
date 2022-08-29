@@ -1,0 +1,86 @@
+
+.mention {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border: 0.1px solid;
+  color: #ffffff;
+  background-color: var(--primary);
+  border-radius: 15px;
+  padding: 8px;
+  margin-right: 8px;
+}
+
+.mention:hover {
+  overflow: unset;
+  text-overflow: unset;
+}
+
+.row {
+  display: flex;
+}
+
+.dataMsg {
+  display: flex;
+  height: 90vh;
+  justify-content: center;
+  vertical-align: middle;
+  align-items: center;
+}
+
+.contentHolder {
+  height: 60vh;
+  overflow: scroll;
+}
+
+.messagesList {
+  height: 100%;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  // height: calc(100vh - 250px);
+  overflow-y: scroll;
+  flex-shrink: 0;
+  flex-grow: 0;
+}
+
+.outMsg {
+  padding: 8px;
+  background-color: #eff0f1;
+  word-break: break-word;
+  white-space: pre-line;
+}
+
+.inMsg {
+  border: 1px solid #edeff2;
+  padding: 8px;
+  background-color: var(--primary_light);
+  margin-right: 2em;
+  word-break: break-word;
+  float: left;
+}
+
+.indent {
+  margin-left: 4em;
+}
+
+.hint {
+  font-size: 0.7em;
+}
+
+.hint > * {
+  margin-left: 8px;
+  margin-right: 8px;
+}
+
+.msgContainer {
+  padding: 8px 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.spinnerHolder {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

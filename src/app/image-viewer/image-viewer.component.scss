@@ -1,0 +1,42 @@
+
+.mat-dialog-content.imageViewer {
+  max-height: 100vh;
+  display: flex;
+  justify-content: center;
+}
+
+.img {
+  height: 100%;
+  max-height: 100vh;
+  width: auto;
+}
+
+.control {
+  height: 100%;
+  outline: none;
+  background-color: #0000000d;
+  border: none;
+  position: absolute;
+  cursor: pointer;
+  z-index: 1;
+  border-radius: 5px;
+}
+
+.prev {
+  left: 20px;
+}
+
+.next {
+  right: 20px;
+}
+
+.closeBtn {
+  position: absolute;
+  top: 20px;
+  right: 50px;
+  z-index: 1;
+}
+
+.control:hover {
+  background-color: whitesmoke;
+}

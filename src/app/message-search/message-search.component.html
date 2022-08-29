@@ -1,0 +1,83 @@
+<div class="row">
+  <span>
+    <span class="mention"
+      *ngIf="!searchAccountPhone">@{{data.contact.contact1 || data.contact.contact2 || data.contact.phoneNumber | phone }}</span>
+    <span class="mention"
+      *ngIf="searchAccountPhone">@{{data.selectedAccountPhone.accountPhoneName || data.selectedAccountPhone.accountPhone | phone }}</span>
+    <span>
+      <mat-slide-toggle [(ngModel)]="searchAccountPhone" (change)="searchUpdated()">Search Account Phone</mat-slide-toggle>
+    </span>
+  </span>
+  <span>
+  </span>
+</div>
+<div class="row" style="margin-top: 16px;">
+  <mat-form-field class="compactField full-width">
+    <input type="text" matInput placeholder="Search Messages" [formControl]="search">
+  </mat-form-field>
+  <div *ngIf="searchActive">
+    <mat-progress-spinner [color]="'primary'" [mode]="'indeterminate'" [diameter]="25">
+    </mat-progress-spinner>
+  </div>
+</div>
+<div mat-dialog-content class="contentHolder">
+  <div class="dataMsg" *ngIf="(!messages || !messages.length) && (!searchActive) && (search.value)">
+    No data
+  </div>
+  <cdk-virtual-scroll-viewport #messageScroller class="messagesList" [itemSize]="92">
+    <div class="msgContainer" *cdkVirtualFor="let message of messages" (contextmenu)="openMessageMenu($event, message)">
+      <div *ngIf="!message.isDeleted"
+        [ngClass]="{'outMsg': message.direction === 'out', 'inMsg': message.direction === 'in', 'indent': message.direction === 'out'}"
+        innerHTML="{{ message.messageBody | highlightText : search.value }}">
+      </div>
+      <div *ngIf="!message.isDeleted" class="hint" [ngClass]="{'indent': message.direction === 'out'}">
+        <span>Account: {{ message.accountPhone | phone }}</span>
+        <span>Phone: {{ message.phoneNumber | phone }}</span>
+        <span>{{ message.createdDate | date:'MMM d, Y h:mm a'}}</span>
+      </div>
+    </div>
+  </cdk-virtual-scroll-viewport>
+  <div class="spinnerHolder" *ngIf="loadMoreActive">
+    <mat-progress-spinner [color]="'primary'" [mode]="'indeterminate'" [diameter]="25">
+    </mat-progress-spinner>
+  </div>
+</div>
+<div mat-dialog-actions>
+  <button mat-flat-button [color]="'accent'" [mat-dialog-close]="false">Close</button>
+</div>
+
+<div style="visibility: hidden; position: fixed;" [style.left]="messageMenuPosition.x"
+  [style.top]="messageMenuPosition.y" [matMenuTriggerFor]="messageMenu" #messageMenuTrigger
+  [matMenuTriggerData]="contextMessage">
+</div>
+
+<mat-menu #messageMenu="matMenu">
+  <ng-template matMenuContent let-message="message">
+    <button mat-menu-item (click)="actOnMessage(message, 'read')">
+      <span *ngIf="!message.isRead">
+        <mat-icon>mark_chat_read</mat-icon>
+        Mark as Read
+      </span>
+      <span *ngIf="message.isRead">
+        <mat-icon>mark_chat_unread</mat-icon>
+        Mark as Unread
+      </span>
+    </button>
+    <!-- <button mat-menu-item (click)="actOnMessage(message, 'delete')">
+      <mat-icon>delete</mat-icon>
+      Delete
+    </button> -->
+    <button mat-menu-item (click)="actOnMessage(message, 'forward')">
+      <mat-icon>shortcut</mat-icon>
+      Forward
+    </button>
+    <button mat-menu-item (click)="actOnMessage(message, 'copyMessage')">
+      <mat-icon>content_copy</mat-icon>
+      Copy message
+    </button>
+    <button mat-menu-item (click)="actOnMessage(message, 'viewConversation')">
+      <mat-icon>launch</mat-icon>
+      View in conversation
+    </button>
+  </ng-template>
+</mat-menu>

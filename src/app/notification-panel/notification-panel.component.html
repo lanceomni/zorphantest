@@ -1,0 +1,49 @@
+<h1 mat-dialog-title>{{data.title}}</h1>
+<div mat-dialog-content class="container">
+  <div class="msgContainer" *ngFor="let notification of data.notifications">
+    <div *ngIf="notification.message.direction === 'in'">
+      <div style="margin-bottom: 16px">
+        <span class="fromLable">From</span>: 
+        <span>{{ notification.contact.contact1 || notification.contact.contact2 }}
+          ({{ notification.contact.phoneNumber | phone }})</span>
+        &nbsp;&nbsp;
+        <span class="toLable">To</span>: 
+        <span>{{ notification.senderName }}</span>
+        <span>
+          ({{ notification.sender | phone }})
+        </span>
+      </div>
+      <div [innerHtml]="notification.message.messageBody"
+        [ngClass]="{'outMsg': notification.message.direction === 'out', 'inMsg': notification.message.direction === 'in', 'unRead': (!notification.message.isRead && notification.message.direction === 'in')}">
+      </div>
+      <div class="msgHint">
+        {{ notification.message.deliveredDate | date:'M/d/yy h:mm a'}}
+      </div>
+      <div *ngIf="notification.showReply">
+        <mat-form-field appearance="outline" class="full-width">
+          <textarea
+            matInput
+            cdkTextareaAutosize
+            #autosize="cdkTextareaAutosize"
+            cdkAutosizeMinRows="1"
+            cdkAutosizeMaxRows="5"
+            placeholder="Type a message"
+            [(ngModel)]="notification.reply">
+          </textarea>
+          <mat-hint>{{ notification.reply.length }}/600</mat-hint>
+        </mat-form-field>
+      </div>
+      <div>
+        <button mat-flat-button *ngIf="!notification.showReply" (click)="showReply(notification)">Reply</button>
+        <button mat-flat-button *ngIf="notification.showReply" color="primary" (click)="sendReply(notification)">Send</button>
+        <button mat-flat-button (click)="markAsRead(notification)">Mark as read</button>
+        <button mat-flat-button (click)="viewConversation(notification)">View conversation</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div mat-dialog-actions>
+  <span>
+    <button mat-flat-button color="accent" [mat-dialog-close]="false">Close</button>
+  </span>
+</div>

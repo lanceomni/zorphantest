@@ -1,0 +1,46 @@
+.msg {
+  padding: 8px;
+  background-color: #eff0f1;
+  word-break: break-word;
+  white-space: pre-line;
+}
+
+.msgMetaHint {
+  font-size: 0.7em;
+  color: #808080;
+}
+
+.anchor {
+  cursor: pointer;
+}
+.anchor:hover {
+  text-decoration: underline;
+  color: var(--primary);
+}
+
+.verticalSpacing {
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+.horzontalSpacing {
+  margin-left: 8px;
+  margin-right: 8px;
+}
+
+.grpEles > *{
+  margin-left: 8px;
+  margin-right: 8px;
+}
+
+.numberHolder {
+  padding: 4px 8px;
+  border: 1px solid;
+  border-radius: 20px;
+}
+
+.spinnerHolder {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
